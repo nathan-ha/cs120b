@@ -1,5 +1,19 @@
-// https://www.youtube.com/watch?v=h6KA7ti9xsU
-//
+/*         Nathan Ha 
+
+*          Discussion Section: 22
+
+ *         Assignment: Lab #2  Exercise #1
+
+ *         Exercise Description: Takes a number from user and outputs the number in binary using LEDs   
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *         Demo Video: 
+
+ */
+
+#include <Arduino.h>
+
 int pins[4] = {2, 3, 4, 5};
 void setup()
 {
