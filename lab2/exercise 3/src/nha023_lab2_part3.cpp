@@ -44,8 +44,8 @@ int nums[17][7] {
   {0, 1, 1, 0, 0, 1, 1}, //4 		<- Implement!
   {1, 0, 1, 1, 0, 1, 1}, //5 		<- Implement!
   {1, 0, 1, 1, 1, 1, 1}, //6 		<- Implement!
+  {1, 1, 1, 0, 0, 0, 0}, //7 		<- Implement!
   {1, 1, 1, 1, 1, 1, 1}, //8 		<- Implement!
-  {0, 0, 0, 0, 0, 0, 0}, //8 		<- Implement!
   {1, 1, 0, 0, 1, 1, 1}, //9 		<- Implement!
   {1, 1, 1, 0, 1, 1, 1}, //10 (A)
   {0, 0, 1, 1, 1, 1, 1}, //11 (b)
@@ -102,15 +102,20 @@ void loop() {
   Serial.println();                //= 0100 
 
   input &= mask;                      
-  intToLED(input);                    
+  intToLED(input);    
+  outNum(input);                
   if (input != 0) {
     while (input != 1) { // when int is 1, the bit is completely right shifted 
-      delay(200);
+      delay(500);
       input >>= 1;
       intToLED(input);
       outNum(input);
     }
+  } else {
+    intToLED(0);    
+    outNum(0);  
   }
+  
   
 }
 
