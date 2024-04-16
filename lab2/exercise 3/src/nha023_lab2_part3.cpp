@@ -5,11 +5,11 @@
  *         Assignment: Lab #2  Exercise #3
 
  *         Exercise Description: Takes a number from user and outputs the number in binary using LEDs. Then the program asks
-              for user to select a bit to slowly shift right.
+              for user to select a bit to slowly shift right. It will also display the value of the LEDs on the 7-segment display.
 
  *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
 
- *        Demo Video: 
+ *        Demo Video: https://youtube.com/watch?v=puTHP79Jljw
 
  */
 
@@ -74,7 +74,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   for (int i = 0; i < 12; i++) {
-  pinMode(pins[i], OUTPUT);
+    pinMode(pins[i], OUTPUT);
   }
   
 }
@@ -87,7 +87,8 @@ void loop() {
 
   while (Serial.available() == 0) {} // wait until user inputs something
   int input = Serial.parseInt(); // get user input
-  Serial.println(input);
+  Serial.print("Entered number in hex: ");
+  Serial.println(input, HEX);
   Serial.println();
   intToLED(input);
   outNum(input);
@@ -96,10 +97,10 @@ void loop() {
   // pt 2 -- take bit, isolate it, and shift it
   Serial.println("Select bit to shift to the right (0-3).");
   while (Serial.available() == 0) {}
-  int selected_bit = Serial.parseInt(); 
-  int mask = 0x1 << selected_bit;   // 1101
-  Serial.println(selected_bit);    //& 0001 << 2
-  Serial.println();                //= 0100 
+  int selected_bit = Serial.parseInt();
+  int mask = 0x1 << selected_bit; // 1101
+  Serial.println(selected_bit);   //& 0001 << 2
+  Serial.println();               //= 0100
 
   input &= mask;                      
   intToLED(input);    

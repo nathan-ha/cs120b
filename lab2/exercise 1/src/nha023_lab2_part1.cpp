@@ -8,7 +8,8 @@
 
  *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
 
- *         Demo Video: 
+ *         Demo Video: https://www.youtube.com/watch?v=dTSNTP8lPcM
+
 
  */
 
@@ -34,12 +35,12 @@ void loop()
 {
   Serial.println("-----------------------------------------------");
   Serial.println("Input a number between 0 and 15 (inclusive)\n");
-  Serial.println("Waiting for user input...");
   
   while (Serial.available() == 0) {} // wait until user inputs something
   
   int input = Serial.parseInt(); // get user input
-  Serial.println(input);
+  Serial.print("Entered number in hex: ");
+  Serial.println(input, HEX);
   
   Serial.println("Writing to pins...");
   for (int i = 0; i < 4; i++) {

@@ -9,7 +9,7 @@
 
  *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
 
- *        Demo Video: https://www.youtube.com/watch?v=rBL03mPFFlg
+ *        Demo Video: https://www.youtube.com/watch?v=RKrzbAr40ms
 
  */
 
@@ -36,7 +36,8 @@ void loop()
 
   while (Serial.available() == 0) {} // wait until user inputs something
   int input = Serial.parseInt(); // get user input
-  Serial.println(input);
+  Serial.print("Entered number in hex: ");
+  Serial.println(input, HEX);
   Serial.println();
   intToLED(input);
 
