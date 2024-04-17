@@ -115,7 +115,7 @@ void Tick() {
         state = OFF_PUSH;
         write_rgb(0,0,0);
       } 
-      else if (time >= 8) {
+      else if (time >= 9) {
         state = OFF_RELEASE;
         write_rgb(0,0,0);
       }
