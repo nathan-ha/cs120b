@@ -2,14 +2,15 @@
 
 *          Discussion Section: 22
 
- *         Assignment: Lab #3   Exercise #1
+ *         Assignment: Lab #3   Exercise #3
 
  *         Exercise Description: Implements bathroom light FSM. Light turns on if either user presses button or room goes dark. 
             The potentiometer also adjusts the color of the RGB LED.
+            The off timer is shown on the 7-segment display
 
  *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
 
- *        Demo Video: 
+ *        Demo Video: https://www.youtube.com/watch?v=XpemxUOfc34
 
  */
 
