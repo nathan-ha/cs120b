@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "../lib/timerISR.h"
+#include "../lib/serialATmega.h"
 
 
 unsigned char SetBit(unsigned char x, unsigned char k, unsigned char b) {
@@ -57,18 +58,56 @@ void outDir(int dir){
 
 int phases[8] = {0b0001, 0b0011, 0b0010, 0b0110, 0b0100, 0b1100, 0b1000, 0b1001}; //8 phases of the stepper motor step
 
-enum states {INIT, } state; //TODO: finish the enum for the SM
+enum states {INIT, NEUTRAL, UP, DOWN, PRESS} state; //TODO: finish the enum for the SM
+char count = 0;
 
 
 void Tick() {
+  const int stick_value = ADC_read(0);
+  const char stick_up = stick_value > 900;
+  const char stick_down = stick_value < 100;
+  const char stick_press = ADC_read(2) < 500;
+  const char stick_neutral = !stick_up || !stick_up;
 
   // State Transistions
   //TODO: complete transitions 
   switch(state) {
 
     case INIT:
+      state = NEUTRAL;
       break;
-
+    case NEUTRAL:
+      if (stick_up && !stick_down) {
+        state = UP;
+        count++;
+      } else if (stick_press) {
+        state = PRESS;
+      } else if (stick_down && !stick_up) {
+        state = DOWN;
+        count--;
+      }
+      break;
+    case UP:
+      if (stick_up) {
+        state = UP;
+      }
+      else if (stick_neutral) {
+        state = NEUTRAL;
+      }
+      break;
+    case PRESS:
+      if (stick_neutral) {
+        state = NEUTRAL;
+      }
+      break;
+    case DOWN:
+      if (stick_down) {
+        state = DOWN;
+      }
+      else if (stick_neutral) {
+        state = NEUTRAL;
+      }
+      break;
     default:
       state = INIT;
       break;
@@ -81,7 +120,17 @@ void Tick() {
 
     case INIT:
       break;
-
+    case NEUTRAL:
+      break;
+    case UP:
+      if (count > 15) count = 0;
+      break;
+    case DOWN:
+      if (count < 0) count = 15;
+      break;
+    case PRESS:
+      count = 0;
+      break;
     default:
       break;
 
@@ -95,9 +144,12 @@ int main(void)
 {
 	//TODO: initialize all outputs and inputs
   DDRB = 0xFF; PORTB = 0x00; // init port B outputs
+  DDRD = 0xFF; PORTD = 0x00; // init port D outputs
+
 
 
   ADC_init();//initializes the analog to digital converter
+  serial_init(9600);
 	
   state = INIT;
   DDRC = 0x00; PORTC = 0xFF;
@@ -107,11 +159,8 @@ int main(void)
 
     while (1)
     {
-
-      // turns on led when joystick goes down
-      if (ADC_read(0) < 500) PORTB = SetBit(PORTB, 5, 1);
-      else PORTB = SetBit(PORTB, 5, 0);
-
+      // serial_println(ADC_read(2));
+      outNum(count);
 		  Tick();      // Execute one synchSM tick
       while (!TimerFlag){}  // Wait for SM period
       TimerFlag = 0;        // Lower flag
