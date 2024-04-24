@@ -27,13 +27,13 @@
 enum states {INIT, NEUTRAL, UP, DOWN, LEFT, RIGHT, PRESS, SUCCESS} state;
 
 
-unsigned char SetBit(unsigned char x, unsigned char k, unsigned char b) {
-   return (b ?  (x | (0x01 << k))  :  (x & ~(0x01 << k)) );
+unsigned char SetBit(unsigned char number, unsigned char kth_bit, unsigned char bit) {
+   return (bit ?  (number | (0x01 << kth_bit))  :  (number & ~(0x01 << kth_bit)) );
               //   Set bit to 1           Set bit to 0
 }
 
-unsigned char GetBit(unsigned char x, unsigned char k) {
-   return ((x & (0x01 << k)) != 0);
+unsigned char GetBit(unsigned char number, unsigned char kth_bit) {
+   return ((number & (0x01 << kth_bit)) != 0);
 }
 
 void ADC_init() {
@@ -71,11 +71,28 @@ void outNum(int num){
 }
 
 //directions[] and outDir() will be neeeded for ex 2 and 3
-int directions[4] = { }; //TODO: copmlete the array containg the values needed for the 7 sgements for each of the 4 directions
 // a  b  c  d  e  f  g
-//TODO: display the direction to the 7-seg display. HINT: will be very similar to outNum()
 void outDir(enum states dir){
-  
+  switch (dir) {
+    case UP:
+      PORTD = 0b0111110 << 1;
+      PORTB = SetBit(PORTB, 0 ,0b0111110 & 0x01);
+      break;
+    case DOWN:
+      PORTD = 0b0111101 << 1;
+      PORTB = SetBit(PORTB, 0 ,0b0111101 & 0x01);
+      break;
+    case LEFT:
+      PORTD = 0b0001110 << 1;
+      PORTB = SetBit(PORTB, 0, 0b0001110 & 0x01);
+      break;
+    case RIGHT:
+      PORTD = 0b0000101 << 1;
+      PORTB = SetBit(PORTB, 0, 0b0000101 & 0x01);
+      break;
+    default:
+      break;
+  }
 }
 
 int phases[8] = {0b0001, 0b0011, 0b0010, 0b0110, 0b0100, 0b1100, 0b1000, 0b1001}; //8 phases of the stepper motor step
@@ -87,7 +104,7 @@ char turn_num = 0;
 
 
 bool password_is_correct(void) {
-  for (char i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (password[i] != moves[i]) return false;
   }
   return true;
@@ -98,10 +115,11 @@ void resetMoves(void) {
     moves[i] = NEUTRAL;
 }
 
-void spin_motor(int ms) {
+// spins the motor. direction spins one way for direction == 0, else it spins the other way
+void spin_motor(int ticks, char direction) {
   int i = 0;
-  for (int t = 0; t < ms; t++) {
-      if((PINC >> 2) & 0x01){ //button not pressed
+  for (int t = 0; t < ticks; t++) {
+      if(direction){ //button not pressed
          PORTB = (PORTB & 0x03) | phases[i] << 2; //& first to reset pins 2-5 but not 0-1 then | with phase shifted left 2 to assign the right value to pins 2-5
          i++; //increment to next phase
          if(i > 7){ //if all phases are completed, restart
@@ -120,15 +138,16 @@ void spin_motor(int ms) {
 }
 
 char motor_is_done = 0;
+char locked_status = 1;
 
 void Tick() {
   const int stick_x = ADC_read(0);
   const int stick_y = ADC_read(1);
 
   const char stick_up = stick_x > 900;
-  const char stick_down = stick_x < 100;
+  const char stick_down = stick_x < 200;
   const char stick_right = stick_y > 900;
-  const char stick_left = stick_y < 100;
+  const char stick_left = stick_y < 200;
   const char stick_press = ADC_read(2) < 500;
   const char stick_neutral = !stick_up && !stick_down && !stick_left && !stick_right;
 
@@ -165,11 +184,17 @@ void Tick() {
         state = NEUTRAL;
         turn_num++;
       }
+      else {
+        state = UP;
+      }
       break;
     case DOWN:
       if (stick_neutral) {
         state = NEUTRAL;
         turn_num++;
+      }
+      else {
+        state = DOWN;
       }
       break;
     case LEFT:
@@ -177,11 +202,17 @@ void Tick() {
         state = NEUTRAL;
         turn_num++;
       }
+      else {
+        state = LEFT;
+      }
       break;
     case RIGHT:
       if (stick_neutral) {
         state = NEUTRAL;
         turn_num++;
+      }
+      else {
+        state = RIGHT;
       }
       break;
     case SUCCESS:
@@ -202,30 +233,32 @@ void Tick() {
   }
 
   // State Actions
-  //TODO: complete transitions
   switch(state) {
     case INIT:
       break;
     case NEUTRAL:
       if (turn_num >= 4 && !password_is_correct()) turn_num = 0;
+      if (locked_status) PORTC = SetBit(PORTC, 5, 1);
       outNum(turn_num);
       break;
     case UP:
-      // TODO: output U
+      outDir(UP);
       break;
     case DOWN:
-      // TODO: output D
+      outDir(DOWN);
       break;
     case LEFT:
-      // TODO: output L
+      outDir(LEFT);
       break;
     case RIGHT:
-      // TODO: output R
+      outDir(RIGHT);
       break;
     case SUCCESS:
       outNum(4);
-      spin_motor(2000);
+      spin_motor(2000, locked_status);
       motor_is_done = 1;
+      locked_status = !locked_status;
+      if (!locked_status) PORTC = SetBit(PORTC, 5, 0);
       break;
     default:
       break;
@@ -247,12 +280,13 @@ int main(void)
 
 	
   state = INIT;
-  DDRC = 0x00; PORTC = 0xFF;
+  DDRC = 0x00; PORTC = 0xFF; // port c input
+  DDRC = SetBit(DDRC, 5, 1); // a5 output
+  PORTC = SetBit(PORTC, 5, 0); // a5 output
   TimerSet(1); //period of 1 ms. good period for the stepper mottor
   TimerOn();
     while (1)
     {
-      // serial_println(state);
 		  Tick();      // Execute one synchSM tick
       while (!TimerFlag){}  // Wait for SM period
       TimerFlag = 0;        // Lower flag
