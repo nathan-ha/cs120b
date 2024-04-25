@@ -161,6 +161,7 @@ void Tick()
       temp_password_index = 0;
       is_changing_password = 0;
       turn_num = 0;
+      PORTC = SetBit(PORTC, 3, 0); // turn off led
       resetMoves();
     }
     if (turn_num >= 4 && password_is_correct() && !is_changing_password)
@@ -327,6 +328,7 @@ void Tick()
     break;
   case PRESS:
     if (!is_locked) {
+      PORTC = SetBit(PORTC, 3, 1); // toggle led
       is_changing_password = 1;
       temp_password_index = 0;
       turn_num = 0;
@@ -352,8 +354,10 @@ int main(void)
   PORTC = 0xFF;                // port c input
   DDRC = SetBit(DDRC, 5, 1);   // a5 output
   PORTC = SetBit(PORTC, 5, 0); // a5 output
+  PORTC = SetBit(PORTC, 3, 0); // led off
   TimerSet(1);                 // period of 1 ms. good period for the stepper mottor
   TimerOn();
+
   while (1)
   {
     Tick(); // Execute one synchSM tick
