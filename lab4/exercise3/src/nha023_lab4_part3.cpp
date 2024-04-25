@@ -157,7 +157,8 @@ void Tick()
     state = NEUTRAL;
     break;
   case NEUTRAL:
-   if (temp_password_index >= 4) {
+    if (temp_password_index >= 4)
+    {
       temp_password_index = 0;
       is_changing_password = 0;
       turn_num = 0;
@@ -171,28 +172,33 @@ void Tick()
     else if (stick_up)
     {
       state = UP;
-      if (is_changing_password) password[temp_password_index++] = UP;
+      if (is_changing_password)
+        password[temp_password_index++] = UP;
       moves[turn_num] = UP;
     }
     else if (stick_down)
     {
       state = DOWN;
-      if (is_changing_password) password[temp_password_index++] = DOWN;
+      if (is_changing_password)
+        password[temp_password_index++] = DOWN;
       moves[turn_num] = DOWN;
     }
     else if (stick_left)
     {
       state = LEFT;
-      if (is_changing_password) password[temp_password_index++] = LEFT;
+      if (is_changing_password)
+        password[temp_password_index++] = LEFT;
       moves[turn_num] = LEFT;
     }
     else if (stick_right)
     {
       state = RIGHT;
-      if (is_changing_password) password[temp_password_index++] = RIGHT;
+      if (is_changing_password)
+        password[temp_password_index++] = RIGHT;
       moves[turn_num] = RIGHT;
     }
-    else if (stick_press) {
+    else if (stick_press)
+    {
       state = PRESS;
     }
     break;
@@ -240,7 +246,7 @@ void Tick()
       state = RIGHT;
     }
     break;
- 
+
   case SUCCESS:
     if (motor_is_done)
     {
@@ -255,7 +261,7 @@ void Tick()
     }
     break;
   case PRESS:
-   if (stick_neutral)
+    if (stick_neutral)
     {
       state = NEUTRAL;
     }
@@ -263,7 +269,7 @@ void Tick()
     {
       state = PRESS;
     }
-  break;
+    break;
   default:
     state = INIT;
     break;
@@ -299,9 +305,9 @@ void Tick()
     if (!motor_is_done)
     {
       if (is_locked)
-      {                                                    
+      {
         PORTB = (PORTB & 0x03) | phases[phase_index] << 2; //& first to reset pins 2-5 but not 0-1 then | with phase shifted left 2 to assign the right value to pins 2-5
-        phase_index++;                                     
+        phase_index++;
         if (phase_index > 7)
         { // if all phases are completed, restart
           phase_index = 0;
@@ -318,7 +324,8 @@ void Tick()
       }
     }
     ticks++;
-    if (ticks >= 1000) {
+    if (ticks >= 1000)
+    {
       motor_is_done = 1;
       ticks = 0;
       is_locked = !is_locked;
@@ -327,7 +334,8 @@ void Tick()
     }
     break;
   case PRESS:
-    if (!is_locked) {
+    if (!is_locked)
+    {
       PORTC = SetBit(PORTC, 3, 1); // toggle led
       is_changing_password = 1;
       temp_password_index = 0;
@@ -363,7 +371,7 @@ int main(void)
     Tick(); // Execute one synchSM tick
     while (!TimerFlag)
     {
-    }              // Wait for SM period
+    } // Wait for SM period
     TimerFlag = 0; // Lower flag
   }
 

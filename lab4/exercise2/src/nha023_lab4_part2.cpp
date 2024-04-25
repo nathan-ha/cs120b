@@ -4,7 +4,7 @@
 
  *         Assignment: Lab #4  Exercise #2
 
- *         Exercise Description: Moving joystick in specific pattern activates motor
+ *         Exercise Description: Moving joystick in specific pattern activates motor.
 
  *
 
@@ -252,7 +252,7 @@ void Tick()
     if (turn_num >= 4 && !password_is_correct())
       turn_num = 0;
     if (locked_status)
-      PORTC = SetBit(PORTC, 5, 1);
+      PORTC = SetBit(PORTC, 5, 1); // sets decimal point on lock
     outNum(turn_num);
     break;
   case UP:
@@ -273,9 +273,9 @@ void Tick()
     if (!motor_is_done)
     {
       if (locked_status)
-      {                                                    
+      {
         PORTB = (PORTB & 0x03) | phases[phase_index] << 2; //& first to reset pins 2-5 but not 0-1 then | with phase shifted left 2 to assign the right value to pins 2-5
-        phase_index++;                                     
+        phase_index++;
         if (phase_index > 7)
         { // if all phases are completed, restart
           phase_index = 0;
@@ -292,12 +292,13 @@ void Tick()
       }
     }
     ticks++;
-    if (ticks >= 1000) {
+    if (ticks >= 1000)
+    {
       motor_is_done = 1;
       ticks = 0;
       locked_status = !locked_status;
       if (!locked_status)
-        PORTC = SetBit(PORTC, 5, 0);
+        PORTC = SetBit(PORTC, 5, 0); // drops decimal point on unlock
     }
     break;
   default:
@@ -327,7 +328,7 @@ int main(void)
     Tick(); // Execute one synchSM tick
     while (!TimerFlag)
     {
-    }              // Wait for SM period
+    } // Wait for SM period
     TimerFlag = 0; // Lower flag
   }
 
