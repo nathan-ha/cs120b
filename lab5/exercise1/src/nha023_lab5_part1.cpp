@@ -124,26 +124,26 @@ int TickFct_output(int state)
     case FIRST_DIGIT:
         // PORTB = 0xFF;
         PORTB = SetBit(PORTB, 5, 1);
-        PORTB = SetBit(PORTB, 2, 0); // enable D1
         outNum(distance % 10);
+        PORTB = SetBit(PORTB, 2, 0); // enable D1
         break;
     case SECOND_DIGIT:
         // PORTB = 0xFF;
         PORTB = SetBit(PORTB, 2, 1);
-        PORTB = SetBit(PORTB, 3, 0); // enable D2
         outNum((distance / 10) % 10);
+        PORTB = SetBit(PORTB, 3, 0); // enable D2
         break;
     case THIRD_DIGIT:
         // PORTB = 0xFF;
         PORTB = SetBit(PORTB, 3, 1);
-        PORTB = SetBit(PORTB, 4, 0); // enable D3
         outNum((distance / 100) % 10);
+        PORTB = SetBit(PORTB, 4, 0); // enable D3
         break;
     case FOURTH_DIGIT:
         // PORTB = 0xFF;
         PORTB = SetBit(PORTB, 4, 1);
-        PORTB = SetBit(PORTB, 5, 0); // enable D4
         outNum((distance / 1000) % 10);
+        PORTB = SetBit(PORTB, 5, 0); // enable D4
         break;
     default:
         break;
