@@ -2,7 +2,7 @@
 
 *          Discussion Section: 22
 
- *         Assignment: Lab #4  Exercise #2
+ *         Assignment: Lab #4  Exercise #3
 
  *         Exercise Description: Moving joystick in specific pattern activates motor. Pressing while unlocked lets you change password.
 
@@ -12,7 +12,7 @@
 
  *
 
- *         Demo Link: <URL>
+ *         Demo Link: https://www.youtube.com/watch?v=wdbWE0wDbIY
 
  */
 

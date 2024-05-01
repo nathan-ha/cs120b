@@ -2,9 +2,9 @@
 
 *          Discussion Section: 22
 
- *         Assignment: Lab #5  Exercise #1
+ *         Assignment: Lab #5  Exercise #2
 
- *         Exercise Description: Read distance from sonar sensor and display on 4 digit 7 seg display
+ *         Exercise Description: Read distance from sonar sensor and display on 4 digit 7 seg display. Change LED color based on distance.
 
  *
 
@@ -24,7 +24,7 @@
 // TODO: declare variables for cross-task communication
 int distance = 0; // cm
 
-#define NUM_TASKS 2
+#define NUM_TASKS 4
 
 // Task struct for concurrent synchSMs implmentations
 typedef struct _task
@@ -38,8 +38,10 @@ typedef struct _task
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
 const unsigned long SONAR_PERIOD = 1000; // ms
-const unsigned long OUTPUT_PERIOD = 1;
-const unsigned long GCD_PERIOD = findGCD(SONAR_PERIOD, OUTPUT_PERIOD);
+const unsigned long OUTPUT_PERIOD = 1;   // ms
+const unsigned long GREEN_PERIOD = 1;
+const unsigned long RED_PERIOD = 1;
+const unsigned long GCD_PERIOD = findGCD(findGCD(SONAR_PERIOD, OUTPUT_PERIOD), findGCD(GREEN_PERIOD, RED_PERIOD));
 
 task tasks[NUM_TASKS]; // declared task array with 5 tasks
 
@@ -151,7 +153,160 @@ int TickFct_output(int state)
     return state;
 }
 
+enum green_pwm_state
+{
+    GREEN_INIT,
+    GREEN_LOW,
+    GREEN_HIGH
+};
+int green_pwn_L = 0;
+int green_pwn_H = 0;
+int green_ticks = 0;
+void update_pwm_green()
+{
+    if (distance < 10)
+    {
+        green_pwn_H = 0;
+        green_pwn_L = 10;
+    }
+    else if (10 <= distance && distance <= 20)
+    {
+        green_pwn_H = 3;
+        green_pwn_L = 7;
+    }
+    else
+    {
+        green_pwn_H = 10;
+        green_pwn_L = 0;
+    }
+}
+int TickFct_green(int state)
+{
+    switch (state)
+    {
+    case GREEN_INIT:
+        state = GREEN_LOW;
+        break;
+    case GREEN_LOW:
+        if (green_ticks > green_pwn_L)
+        {
+            green_ticks = 0;
+            state = GREEN_HIGH;
+        }
+        else
+        {
+            state = GREEN_LOW;
+            set_rgb_led(0, 0, 0);
+        }
+        break;
+    case GREEN_HIGH:
+        if (green_ticks > green_pwn_H)
+        {
+            green_ticks = 0;
+            state = GREEN_LOW;
+        }
+        else
+        {
+            state = GREEN_HIGH;
+            set_rgb_led(0, 1, 0);
+        }
+        break;
+    default:
+        break;
+    }
 
+    switch (state)
+    {
+    case GREEN_LOW:
+        green_ticks++;
+        break;
+    case GREEN_HIGH:
+
+        green_ticks++;
+        break;
+    default:
+        break;
+    }
+    update_pwm_green();
+    return state;
+}
+
+enum red_pwm_state
+{
+    RED_INIT,
+    RED_LOW,
+    RED_HIGH
+};
+int red_pwn_L = 0;
+int red_pwn_H = 0;
+int red_ticks = 0;
+void update_pwm_red()
+{
+    if (distance < 10)
+    {
+        red_pwn_H = 10;
+        red_pwn_L = 0;
+    }
+    else if (10 <= distance && distance <= 20)
+    {
+        red_pwn_H = 9;
+        red_pwn_L = 1;
+    }
+    else
+    {
+        red_pwn_H = 0;
+        red_pwn_L = 10;
+    }
+}
+int TickFct_red(int state)
+{
+    switch (state)
+    {
+    case RED_INIT:
+        state = RED_LOW;
+        break;
+    case RED_LOW:
+        if (red_ticks > red_pwn_L)
+        {
+            state = RED_HIGH;
+            red_ticks = 0;
+        }
+        else
+        {
+            state = RED_LOW;
+            set_rgb_led(0, 0, 0);
+        }
+        break;
+    case RED_HIGH:
+        if (red_ticks > red_pwn_H)
+        {
+            state = RED_LOW;
+            red_ticks = 0;
+        }
+        else
+        {
+            state = RED_HIGH;
+            set_rgb_led(1, 0, 0);
+        }
+        break;
+    default:
+        break;
+    }
+
+    switch (state)
+    {
+    case RED_LOW:
+        red_ticks++;
+        break;
+    case RED_HIGH:
+        red_ticks++;
+        break;
+    default:
+        break;
+    }
+    update_pwm_red();
+    return state;
+}
 
 void TimerISR()
 {
@@ -200,6 +355,15 @@ int main(void)
     tasks[1].elapsedTime = 0;
     tasks[1].TickFct = &TickFct_sonar;
 
+    tasks[2].state = GREEN_INIT;
+    tasks[2].period = GREEN_PERIOD;
+    tasks[2].elapsedTime = 0;
+    tasks[2].TickFct = &TickFct_green;
+
+    tasks[3].state = RED_INIT;
+    tasks[3].period = RED_PERIOD;
+    tasks[3].elapsedTime = 0;
+    tasks[3].TickFct = &TickFct_red;
 
     TimerSet(GCD_PERIOD);
     TimerOn();
