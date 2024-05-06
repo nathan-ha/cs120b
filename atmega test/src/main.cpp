@@ -45,11 +45,11 @@ int main()
 {
   serial_init(9600);
   ADC_init();
-  DDRC = 0x00; // port c inputs
-  PORTC = 0xFF;
+  DDRD = 0x00; // port D inputs
+  PORTD = 0xFF;
 
   while (1)
   {
-    serial_println(ADC_read(5));
+    serial_println(GetBit(PORTD, 2));
   }
 }
