@@ -6,6 +6,8 @@
 #include "../lib/serialATmega-1.h"
 
 // TODO: declare variables for cross-task communication
+char auto_mode = 0;
+char buzzer_on = 0;
 
 /* You have 5 tasks to implement for this lab */
 #define NUM_TASKS 3
@@ -22,7 +24,7 @@ typedef struct _task
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
 const unsigned long MODE_PERIOD = 200;
-const unsigned long JOYSTICK_PERIOD = 100;
+const unsigned long JOYSTICK_PERIOD = 10;
 const unsigned long BUZZER_PERIOD = 10;
 const unsigned long GCD_PERIOD = findGCD(BUZZER_PERIOD, findGCD(MODE_PERIOD, JOYSTICK_PERIOD));
 
@@ -37,6 +39,49 @@ enum mode_state
     MANUAL,
     AUTO
 };
+
+int tick_mode(int state)
+{
+
+    switch (state)
+    {
+    case MODE_INIT:
+        state = MANUAL;
+        lcd_clear();
+        lcd_write_str("Mode: MANUAL");
+        break;
+    case MANUAL:
+        if (auto_mode)
+        {
+            state = AUTO;
+            lcd_clear();
+            lcd_write_str("Mode: AUTO");
+        }
+        break;
+    case AUTO:
+        if (!auto_mode)
+        {
+            state = MANUAL;
+            lcd_clear();
+            lcd_write_str("Mode: MANUAL");
+        }
+        break;
+    default:
+        break;
+    }
+
+    switch (state)
+    {
+    case MANUAL:
+        break;
+    case AUTO:
+        break;
+    default:
+        break;
+    }
+    return state;
+}
+
 enum joystick_state
 {
     JOYSTICK_INIT,
@@ -45,12 +90,143 @@ enum joystick_state
     DOWN,
     PRESS
 };
+
+int tick_joystick(int state)
+{
+    const int stick_x = ADC_read(1);
+    const char press = ADC_read(2) < 500;
+    const char up = stick_x > 900;
+    const char down = stick_x < 200;
+    const char neutral = !up && !down && !press;
+
+    switch (state)
+    {
+    case JOYSTICK_INIT:
+        state = NEUTRAL;
+        break;
+    case NEUTRAL:
+        if (up)
+        {
+            state = UP;
+        }
+        else if (down)
+        {
+            state = DOWN;
+        }
+        else if (press)
+        {
+            state = PRESS;
+            auto_mode = !auto_mode;
+        }
+        break;
+    case UP:
+        if (neutral)
+        {
+            state = NEUTRAL;
+        }
+        break;
+    case DOWN:
+        if (neutral)
+        {
+            state = NEUTRAL;
+        }
+        break;
+    case PRESS:
+        if (neutral)
+        {
+            state = NEUTRAL;
+        }
+        break;
+    default:
+        break;
+    }
+
+    switch (state)
+    {
+    case NEUTRAL:
+        break;
+    case UP:
+        buzzer_on = 1;
+        break;
+    case DOWN:
+        buzzer_on = 1;
+        break;
+    case PRESS:
+        buzzer_on = 1;
+        break;
+    default:
+        break;
+    }
+
+    return state;
+}
+
 enum buzzer_state
 {
     BUZZER_INIT,
     OFF,
     ON
 };
+
+int tick_buzzer(int state)
+{
+    static int ticks = 0;
+    switch (state)
+    {
+    case BUZZER_INIT:
+        state = OFF;
+        break;
+    case OFF:
+        if (buzzer_on)
+        {
+            ticks = 0;
+            state = ON;
+        }
+        break;
+    case ON:
+        if (ticks < 1)
+        {
+            ticks++;
+        }
+        else
+        {
+            // who toucha ma sphaghett(i code)
+            // if joystick is being held, don't switch off yet
+            const int stick_x = ADC_read(1);
+            const char press = ADC_read(2) < 500;
+            const char up = stick_x > 900;
+            const char down = stick_x < 200;
+            const char neutral = !up && !down && !press;
+
+            if (!neutral)
+            {
+                buzzer_on = 1;
+                state = ON;
+            }
+            else
+            {
+                buzzer_on = 0;
+                state = OFF;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+
+    switch (state)
+    {
+    case OFF:
+        PORTB = SetBit(PORTB, 0, 0);
+        break;
+    case ON:
+        PORTB = SetBit(PORTB, 0, 1);
+        break;
+    default:
+        break;
+    }
+    return state;
+}
 
 void TimerISR()
 {
@@ -67,10 +243,13 @@ void TimerISR()
 
 int main(void)
 {
-    // TODO: initialize all your inputs and ouputs
-    // port d and b outputs
+    // port d outputs
     DDRD = 0xFF;
     PORTD = 0x00;
+    // port c inputs
+    DDRC = 0x00;
+    PORTC = 0xFF;
+    // port b outputs
     DDRB = 0xFF;
     PORTB = 0x00;
 
@@ -84,8 +263,20 @@ int main(void)
     //  tasks[0].timeElapsed = ...
     //  tasks[0].TickFct = &task1_tick_function;
 
-    lcd_goto_xy(0, 0);
-    lcd_write_str("hello");
+    tasks[0].period = MODE_PERIOD;
+    tasks[0].state = MODE_INIT;
+    tasks[0].elapsedTime = MODE_PERIOD;
+    tasks[0].TickFct = &tick_mode;
+
+    tasks[1].period = JOYSTICK_PERIOD;
+    tasks[1].state = JOYSTICK_INIT;
+    tasks[1].elapsedTime = JOYSTICK_PERIOD;
+    tasks[1].TickFct = &tick_joystick;
+
+    tasks[2].period = BUZZER_PERIOD;
+    tasks[2].state = BUZZER_INIT;
+    tasks[2].elapsedTime = BUZZER_PERIOD;
+    tasks[2].TickFct = &tick_buzzer;
 
     TimerSet(GCD_PERIOD);
     TimerOn();
