@@ -48,6 +48,8 @@ int main()
   DDRD = 0x00; // port D inputs
   PORTD = 0xFF;
 
+  DDD1 = 0b1;
+
   while (1)
   {
     serial_println(GetBit(PORTD, 2));

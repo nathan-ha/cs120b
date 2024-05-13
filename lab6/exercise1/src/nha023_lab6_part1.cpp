@@ -1,3 +1,20 @@
+/*        Your Name & E-mail: Nathan Ha nha023@ucr.edu
+
+*          Discussion Section: 22
+
+ *         Assignment: Lab #5  Exercise #1
+
+ *         Exercise Description: Make Joystick sound buzzer
+
+ *
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *
+
+ *         Demo Link: https://www.youtube.com/watch?v=E0fe-1Mys5I
+
+ */
 
 #include "../lib/timerISR-2.h"
 #include "../lib/helper.h"
