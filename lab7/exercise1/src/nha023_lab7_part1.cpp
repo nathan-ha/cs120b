@@ -1,9 +1,27 @@
+/*        Your Name & E-mail: Nathan Ha nha023@ucr.edu
+
+*          Discussion Section: 22
+
+ *         Assignment: Lab #7  Exercise #1
+
+ *         Exercise Description: Implement turn signals and honking
+
+ *        
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *
+
+ *         Demo Link: <URL>
+
+ */
+
 #include "../lib/helper.h"
 #include "../lib/periph.h"
 #include "../lib/serialATmega.h"
 #include "../lib/timerISR.h"
 
-#define NUM_TASKS 2  // TODO: Change to the number of tasks being used
+#define NUM_TASKS 3  // TODO: Change to the number of tasks being used
 
 // Task struct for concurrent synchSMs implmentations
 typedef struct _task {
@@ -16,7 +34,8 @@ typedef struct _task {
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
 const unsigned long SIGNAL_PERIOD = 500;
-const unsigned long GCD_PERIOD = SIGNAL_PERIOD;
+const unsigned long HONK_PERIOD = 200;
+const unsigned long GCD_PERIOD = findGCD(SIGNAL_PERIOD, HONK_PERIOD);
 
 task tasks[NUM_TASKS];  // declared task array with 5 tasks
 
@@ -140,6 +159,40 @@ int tick_left_signal(int state) {
   return state;
 }
 
+enum honk_state { HONK_INIT, HONK_OFF, HONK_ON };
+
+int tick_honk(int state) {
+  const char is_pressed = ADC_read(2) < 500;
+  switch (state) {
+    case HONK_INIT:
+      state = HONK_OFF;
+      break;
+    case HONK_OFF:
+      if (is_pressed) {
+        state = HONK_ON;
+        TCCR0B = (TCCR0B & 0xF8) | 0x04;  // set prescaler to 128
+      }
+      break;
+    case HONK_ON:
+      if (!is_pressed) {
+        state = HONK_OFF;
+        TCCR0B = 0x00;  // turn off buzzer
+      }
+      break;
+    default:
+      break;
+  }
+  switch (state) {
+    case HONK_OFF:
+      break;
+    case HONK_ON:
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
 int main(void) {
   // TODO: initialize all your inputs and ouputs
   // ports d and b outputs
@@ -159,10 +212,10 @@ int main(void) {
   OCR0A = 128;                            // sets duty cycle to 50% since TOP is always 256
   TCCR0A |= (1 << COM0A1);                // use Channel A
   TCCR0A |= (1 << WGM01) | (1 << WGM00);  // set fast PWM Mode
-  TCCR0B = (TCCR0B & 0xF8) | 0x02;        // set prescaler to 8
-  TCCR0B = (TCCR0B & 0xF8) | 0x03;        // set prescaler to 64
-  TCCR0B = (TCCR0B & 0xF8) | 0x04;        // set prescaler to 256
-  TCCR0B = (TCCR0B & 0xF8) | 0x05;        // set prescaler to 1024
+  // TCCR0B = (TCCR0B & 0xF8) | 0x02;        // set prescaler to 8
+  // TCCR0B = (TCCR0B & 0xF8) | 0x03;        // set prescaler to 64
+  // TCCR0B = (TCCR0B & 0xF8) | 0x04;        // set prescaler to 256
+  // TCCR0B = (TCCR0B & 0xF8) | 0x05;        // set prescaler to 1024
 
   // TODO: Initialize the servo timer/pwm(timer1)
   TCCR1A |= (1 << WGM11) | (1 << COM1A1);               // COM1A1 sets it to channel A
@@ -187,6 +240,11 @@ int main(void) {
   tasks[1].state = SIGNAL_INIT;
   tasks[1].elapsedTime = SIGNAL_PERIOD;
   tasks[1].TickFct = &tick_right_signal;
+
+  tasks[2].period = HONK_PERIOD;
+  tasks[2].state = HONK_INIT;
+  tasks[2].elapsedTime = HONK_PERIOD;
+  tasks[2].TickFct = &tick_honk;
 
   TimerSet(GCD_PERIOD);
   TimerOn();
