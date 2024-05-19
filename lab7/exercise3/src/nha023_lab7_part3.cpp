@@ -2,9 +2,9 @@
 
 *          Discussion Section: 22
 
- *         Assignment: Lab #7  Exercise #2
+ *         Assignment: Lab #7  Exercise #3
 
- *         Exercise Description: Implement stepper motor functionality for car
+ *         Exercise Description: Implement servo motor functionality for car
 
  *
 
@@ -12,7 +12,7 @@
 
  *
 
- *         Demo Link: https://www.youtube.com/watch?v=0i4ycA8HcEA
+ *         Demo Link: https://www.youtube.com/watch?v=BbJ7CYbZU5E
 
  */
 
@@ -21,7 +21,7 @@
 #include "../lib/serialATmega.h"
 #include "../lib/timerISR.h"
 
-#define NUM_TASKS 6  // TODO: Change to the number of tasks being used
+#define NUM_TASKS 7  // TODO: Change to the number of tasks being used
 
 // Task struct for concurrent synchSMs implmentations
 typedef struct _task {
@@ -38,6 +38,7 @@ const unsigned long HONK_PERIOD = 200;
 const unsigned long VERTICAL_JOYSTICK_PERIOD = 200;
 const unsigned long STEPPER_PERIOD = 2;
 const unsigned long BUZZER_PERIOD = 1000;
+const unsigned long SERVO_PERIOD = 2;
 const unsigned long GCD_PERIOD = 2;
 
 task tasks[NUM_TASKS];  // declared task array with 5 tasks
@@ -338,9 +339,30 @@ int tick_back_buzzer(int state) {
     case BB_OFF:
       break;
     case ON:
-      TCCR0B = (TCCR0B & 0xF8) | 0x03; //buzzer on
+      TCCR0B = (TCCR0B & 0xF8) | 0x03;  // buzzer on
       break;
     case PAUSE:
+      break;
+  }
+  return state;
+}
+
+enum servo_state { INIT_SERVO, ROTATE };
+int tick_servo(int state) {
+  switch (state) {
+    case INIT_SERVO:
+      state = ROTATE;
+      break;
+    case ROTATE:
+      break;
+    default:
+      break;
+  }
+  switch (state) {
+    case ROTATE:
+      OCR1A = map_value(0, 1024, 999, 4999, ADC_read(1));
+      break;
+    default:
       break;
   }
   return state;
@@ -413,6 +435,11 @@ int main(void) {
   tasks[5].state = BB_INIT;
   tasks[5].elapsedTime = BUZZER_PERIOD;
   tasks[5].TickFct = &tick_back_buzzer;
+
+  tasks[6].period = SERVO_PERIOD;
+  tasks[6].state = INIT_SERVO;
+  tasks[6].elapsedTime = SERVO_PERIOD;
+  tasks[6].TickFct = &tick_servo;
 
   TimerSet(GCD_PERIOD);
   TimerOn();
