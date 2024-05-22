@@ -1,3 +1,6 @@
+#ifndef PIANO_NOTES_H
+#define PIANO_NOTES_H
+
 
 // piano notes and their frequencies
 const short C0 = 16;
@@ -143,3 +146,5 @@ short night_of_knights[] = {
                              G4, G4, G4, A4, G4, F4, E4, D4, G4, G4, F4, G4, F4, D4, C4
                             };
 const int night_of_knight_length = (sizeof(night_of_knights)/sizeof(night_of_knights[0]));
+
+#endif // piano_notes.h
