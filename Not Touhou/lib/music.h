@@ -1,5 +1,5 @@
-#ifndef PIANO_NOTES_H
-#define PIANO_NOTES_H
+#ifndef MUSIC_H
+#define MUSIC_H
 
 
 // piano notes and their frequencies

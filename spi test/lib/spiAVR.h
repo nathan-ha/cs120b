@@ -18,13 +18,13 @@
 #define PIN_SCK PORTB5   // SHOULD ALWAYS BE B5 ON THE ARDUINO // sck
 #define PIN_MOSI PORTB3  // SHOULD ALWAYS BE B3 ON THE ARDUINO  // sda
 #define PIN_SS PORTB2    // cs
-#define PIN_A0 PORTB1    // A0 or DC (command/data mode)
+#define PIN_A0 PORTD7    // A0 or DC (command/data mode)
 #define PIN_RST PORTB0   // reset
 
 // If SS is on a different port, make sure to change the init to take that into account.
 void SPI_INIT() {
-  DDRB |= (1 << PIN_MOSI) | (1 << PIN_SCK) | (1 << PIN_SS) | (1 << PIN_A0) | (1 << PIN_RST);
-  SPCR |= (1 << SPE) | (1 << MSTR); // initialize SPI coomunication
+  DDRB |= (1 << PIN_MOSI) | (1 << PIN_SCK) | (1 << PIN_SS) | (1 << PIN_RST);
+  SPCR |= (1 << SPE) | (1 << MSTR); // initialize SPI comunication
 }
 
 void SPI_SEND(char data) {
@@ -42,7 +42,7 @@ void SPI_SEND(char data) {
 
 // Function to send command to display
 void TFT_SEND_COMMAND(char command) {
-  PORTB &= ~(1 << PIN_A0);  // set A0 (DC) low for command mode
+  PORTD &= ~(1 << PIN_A0);  // set A0 (DC) low for command mode
   PORTB &= ~(1 << PIN_SS);  // select the tft display
   SPI_SEND(command);        // send command
   PORTB |= (1 << PIN_SS);   // deselect the tft display
@@ -50,7 +50,7 @@ void TFT_SEND_COMMAND(char command) {
 
 // Function to send data to display
 void TFT_SEND_DATA(char data) {
-  PORTB |= (1 << PIN_A0);   // set A0 (DC) high for data mode
+  PORTD |= (1 << PIN_A0);   // set A0 (DC) high for data mode
   PORTB &= ~(1 << PIN_SS);  // select the tft display
   SPI_SEND(data);           // send data
   PORTB |= (1 << PIN_SS);   // deselect the tft display
@@ -104,14 +104,17 @@ void TFT_DRAW_RECTANGLE(char x1, char y1, char x2, char y2, short color) {
 // Function to initialize ST7735
 void TFT_INIT() {
   SPI_INIT();
+
+  DDRD |= 1 << PIN_A0; // pin d7 output (A0)
+  PORTD &= ~(1 << PIN_A0);
   // Reset the display
-  // honestly not sure if we need to reset the display but it can't hurt
   PORTB &= ~(1 << PIN_RST);  // Reset low
   _delay_ms(10);             // Delay for reset
   PORTB |= (1 << PIN_RST);   // Reset high
   _delay_ms(10);             // Delay for reset
 
   // Initialize display
+  // honestly not sure if we need but it can't hurt
   TFT_SEND_COMMAND(0x01);  // Software reset
   _delay_ms(10);
 
