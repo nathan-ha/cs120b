@@ -59,7 +59,7 @@ void pbuzzer_init() {
 
 void pbuzzer_change_freq(short f) {
   ICR1 = 16000000 / (8 * f);  // 20ms pwm period
-  OCR1A = ICR1 * 0.5;
+  OCR1A = ICR1 * 0.5; // 50% duty cycle
 }
 
 // ****************************************************************************************************

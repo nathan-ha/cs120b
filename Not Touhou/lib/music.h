@@ -110,19 +110,19 @@ const short B7 = 3951;
 const short C8 = 4186;
 
 short night_of_knights[] = { 
-                             D4, F4, E4, D4, C4, A4, E4, C4, 
-                             D4, F4, E4, D4, C4, A4, E4, C4, C4,
-                             D4, F4, E4, D4, C4, A4, E4, C4, C4,
+                             D4, F4, E4, D4, C4, A4, E4, C4,  // intro
+                            //  D4, F4, E4, D4, C4, A4, E4, C4, C4,
+                            //  D4, F4, E4, D4, C4, A4, E4, C4, C4,
                              D5, F5, E5, D5, C5, A5, E5, C5, C5,
                              D4, F4, E4, D4, C4, A4, E4, C4, C4,
-                             D4, F4, E4, D4, C4, A5, E5, C5, C5,
+                            //  D4, F4, E4, D4, C4, A5, E5, C5, C5,
                              D4, F4, E4, D4, C4, A5, E5, C5, C5,
                              D4, B4, C5, E5,
                              D4, A4, G4, E4, F4, A4, G4, F4, E4, D4, //chorus
-                             A4, G4, A4, E4, F4, A4, C4, C4,
-                             D4, A4, G4, E4, F4, A4, G4, F4, E4, D4,
-                             A4, G4, A4, E4, F4, A4, C4, C4,
-                             D4, A4, G4, E4, F4, A4, G4, F4, E4, D4,
+                            //  A4, G4, A4, E4, F4, A4, C4, C4,
+                            //  D4, A4, G4, E4, F4, A4, G4, F4, E4, D4,
+                            //  A4, G4, A4, E4, F4, A4, C4, C4,
+                            //  D4, A4, G4, E4, F4, A4, G4, F4, E4, D4,
                              A4, G4, A4, E4, F4, A4, C4, C4,
                              D5, A5, G5, E5, F5, A5, G5, F5, E5, D5,
                              A5, G5, A5, E5, F5, A5, C5, C5,
