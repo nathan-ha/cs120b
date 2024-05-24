@@ -1,5 +1,21 @@
+/*        Your Name & E-mail: Nathan Ha    nha023@ucr.edu
+
+*          Discussion Section: 22
+
+ *         Assignment: Final Project
+
+ *         Description: State Machine Logic Goes Here
+
+ *
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *
+
+ */
 #ifndef STATE_MACHINES_H
 #define STATE_MACHINES_H
+
 
 #include "../lib/helper.h"
 #include "../lib/music.h"
@@ -7,7 +23,7 @@
 #include "../lib/serialATmega.h"
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
-#include "game_logic.h"
+#include "../lib/game_logic.h"
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
@@ -83,7 +99,7 @@ int tick_game(int state) {
     case GAME_START:
       break;
     case GAME_PLAYING:
-      game_loop;
+      game_loop();
       break;
     case GAME_PAUSE:
       break;

@@ -1,3 +1,22 @@
+/*        Your Name & E-mail: Nathan Ha    nha023@ucr.edu
+
+*          Discussion Section: 22
+
+ *         Assignment: Project (First Week)
+
+ *         Exercise Description: Bullet hell style game
+
+ *        
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *
+
+ *         Demo Link: <URL>
+
+ */
+
+
 #include "../lib/helper.h"
 #include "../lib/music.h"
 #include "../lib/periph.h"

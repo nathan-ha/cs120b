@@ -1,3 +1,18 @@
+/*        Your Name & E-mail: Nathan Ha    nha023@ucr.edu
+
+*          Discussion Section: 22
+
+ *         Assignment: Final Project
+
+ *         Description: Functions for physical devices go here
+
+ *
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *
+
+ */
 #include <avr/interrupt.h>
 #include <avr/io.h>
 // #include <avr/signal.h>
@@ -7,6 +22,7 @@
 
 #ifndef PERIPH_H
 #define PERIPH_H
+
 
 ////////// SONAR UTILITY FUNCTIONS ///////////
 
@@ -59,7 +75,7 @@ void pbuzzer_init() {
 
 void pbuzzer_change_freq(short f) {
   ICR1 = 16000000 / (8 * f);  // 20ms pwm period
-  OCR1A = ICR1 * 0.5; // 50% duty cycle
+  OCR1A = ICR1 * 0.5;         // 50% duty cycle
 }
 
 // ****************************************************************************************************
@@ -87,7 +103,6 @@ void TFT_SEND_DATA(char data) {
 }
 
 // clears the display memory faster than writing one pixel at a time
-// same as the init function
 void TFT_FLUSH() {
   TFT_SEND_COMMAND(0x2A);  // Set column address
   TFT_SEND_DATA(0x00);     // start column high byte
@@ -154,7 +169,7 @@ void TFT_INIT() {
   TFT_SEND_COMMAND(0x3A);  // pixel format
   TFT_SEND_DATA(0x03);     // 12-bit colors
 
-  TFT_FLUSH();  // erase leftover memory
+  TFT_FLUSH();  // erase previous memory
 
   TFT_SEND_COMMAND(0x36);     // Memory Access Control
   TFT_SEND_DATA(0b01001000);  // MY = 0, MX (mirror x) = 1, MV = 1, ML = 0, RGB (instead of bgr) = 1, MH = 0
@@ -180,8 +195,7 @@ void TFT_DRAW_PIXEL(char x, char y, short color) {
   // Set pixel color
   TFT_SEND_COMMAND(0x2C);     // Memory write
   TFT_SEND_DATA(color >> 4);  // honestly don't know why i have to shift it like this
-  TFT_SEND_DATA(color << 4);  // datasheet doesn't mention it, but it's the only way it works
-}
+  TFT_SEND_DATA(color << 4);  // I just used trial and error, but it has something to do with 12 bit rgb
 
 // ****************************************************************************************************
 

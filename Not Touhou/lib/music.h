@@ -1,21 +1,25 @@
+/*        Your Name & E-mail: Nathan Ha    nha023@ucr.edu
+
+*          Discussion Section: 22
+
+ *         Assignment: Final Project
+
+ *         Description: Music notes and songs go here
+
+ *
+
+ *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
+
+ *
+
+ */
 #ifndef MUSIC_H
 #define MUSIC_H
 
 
-// piano notes and their frequencies
-const short C0 = 16;
-const short CSHARP0_DFLAT0 = 17;
-const short D0 = 18;
-const short DSHARP0_EFLAT0 = 19;
-const short E0 = 21;
-const short F0 = 22;
-const short FSHARP0_GFLAT0 = 23;
-const short G0 = 25;
-const short GSHARP0_AFLAT0 = 26;
-const short A0 = 28;
-const short ASHARP0_BFLAT0 = 29;
-const short B0 = 31;
 
+// piano notes and their frequencies
+// 0 octave was too low
 const short C1 = 33;
 const short CSHARP1_DFLAT1 = 35;
 const short D1 = 37;
@@ -107,7 +111,7 @@ const short A7 = 3520;
 const short ASHARP7_BFLAT7 = 3729;
 const short B7 = 3951;
 
-const short C8 = 4186;
+// anything past this is TOO high
 
 short night_of_knights[] = { 
                              D4, F4, E4, D4, C4, A4, E4, C4,  // intro
