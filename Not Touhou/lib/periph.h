@@ -23,7 +23,6 @@
 #ifndef PERIPH_H
 #define PERIPH_H
 
-
 ////////// SONAR UTILITY FUNCTIONS ///////////
 
 void init_sonar() {
@@ -196,6 +195,7 @@ void TFT_DRAW_PIXEL(char x, char y, short color) {
   TFT_SEND_COMMAND(0x2C);     // Memory write
   TFT_SEND_DATA(color >> 4);  // honestly don't know why i have to shift it like this
   TFT_SEND_DATA(color << 4);  // I just used trial and error, but it has something to do with 12 bit rgb
+}
 
 // ****************************************************************************************************
 
