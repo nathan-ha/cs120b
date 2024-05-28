@@ -65,7 +65,8 @@ int tick_display(int state) {
   switch (state) {
     case REFRESH:
       draw_game_screen();
-      box_bouncing_loop();  // TODO make game loop
+      game_loop();
+      // box_bouncing_loop();  // TODO make game loop
       erase_game_screen();
       break;
     default:

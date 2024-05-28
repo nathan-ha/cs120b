@@ -57,4 +57,14 @@ unsigned int map_value(unsigned int aFirst, unsigned int aSecond, unsigned int b
 	return bFirst + (long((inVal - aFirst))*long((bSecond-bFirst)))/(aSecond - aFirst);
 }
 
+
+// Function to find the maximum of two numbers
+short max(short a, short b) {
+    return (a > b) ? a : b;
+}
+
+// Function to find the minimum of two numbers
+short min(short a, short b) {
+    return (a < b) ? a : b;
+}
 #endif /* HEPLER_H */

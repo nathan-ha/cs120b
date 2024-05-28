@@ -39,7 +39,7 @@ typedef struct _task {
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
 const unsigned long BUZZER_PERIOD = 300;
 const unsigned long DISPLAY_PERIOD = 20;
-const unsigned long GAME_PERIOD = 100;
+const unsigned long GAME_PERIOD = 200;
 
 const unsigned long PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD};
 const unsigned long GCD_PERIOD = findGCD_Array(PERIODS, NUM_TASKS);
@@ -71,6 +71,7 @@ int main(void) {
   SPI_INIT();
   TFT_INIT();
   pbuzzer_init();
+  game_init();
 
   tasks[0].period = BUZZER_PERIOD;
   tasks[0].state = PBUZZER_INIT;
