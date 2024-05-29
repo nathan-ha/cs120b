@@ -68,8 +68,8 @@ struct vector {
 struct vector player;
 struct vector boss;
 
-struct vector boss_bullets[100];
-struct vector player_bullets[20];
+struct vector boss_bullets[50];
+struct vector player_bullets[10];
 
 const int boss_bullet_size = sizeof(boss_bullets) / sizeof(boss_bullets[0]);
 const int player_bullets_size = sizeof(player_bullets) / sizeof(player_bullets[0]);
@@ -106,7 +106,7 @@ void game_init() {
     boss_bullets[i].y = -1;
     boss_bullets[i].x_dir = 0;
     boss_bullets[i].y_dir = 0;
-    boss_bullets[i].speed = 0;
+    boss_bullets[i].speed = 1;
   }
 
   for (short i = 0; i < player_bullets_size; i++) {
@@ -114,7 +114,7 @@ void game_init() {
     player_bullets[i].y = -1;
     player_bullets[i].x_dir = 0;
     player_bullets[i].y_dir = 0;
-    player_bullets[i].speed = 0;
+    player_bullets[i].speed = 6;
   }
 
   for (short i = 0; i < boss_bullet_size; i++) {
@@ -127,6 +127,45 @@ void game_init() {
     player_bullets_prev[i].y = -1;
   }
 }
+
+void boss_shoot_bullet() {
+  // look for empty bullet slot and put bullet there
+  for (short i = 0; i < boss_bullet_size; i++) {
+    if (boss_bullets[i].x < 0) {
+      boss_bullets[i].x = boss.x;
+      boss_bullets[i].y = boss.y;
+
+      // bullet direction
+      // x
+      if (fabs(boss.x - player.x) <= 5 && boss.y < player.y && boss.y < 120) {
+        boss_bullets[i].y_dir = 1;
+        boss_bullets[i].x_dir = 0;
+      } else if (fabs(boss.x - player.x) <= 5 && boss.y > player.y && boss.y > 0) {
+        boss_bullets[i].y_dir = -1;
+        boss_bullets[i].x_dir = 0;
+      } else if (boss.x < player.x && boss.x < 120) {
+        boss_bullets[i].x_dir = 1;
+      } else if (boss.x > player.x && boss.x > 0) {
+        boss_bullets[i].x_dir = -1;
+      }
+      // y
+      if (fabs(boss.y - player.y) <= 5 && boss.x < player.x && boss.x < 120) {
+        boss_bullets[i].y_dir = 0;
+        boss_bullets[i].x_dir = 1;
+      } else if (fabs(boss.y - player.y) <= 5 && boss.x > player.x && boss.x > 0) {
+        boss_bullets[i].y_dir = 0;
+        boss_bullets[i].x_dir = -1;
+      } else if (boss.y < player.y && boss.y < 120) {
+        boss_bullets[i].y_dir = 1;
+      } else if (boss.y > player.y && boss.y > 0) {
+        boss_bullets[i].y_dir = -1;
+      }
+
+      return;
+    }
+  }
+}
+
 void game_loop() {
   const int stick_x = ADC_read(PIN_JOYSTICK_X);
   const int stick_y = ADC_read(PIN_JOYSTICK_Y);
@@ -157,23 +196,49 @@ void game_loop() {
   } else if (boss.y > player.y && boss.y > 10) {
     boss.y -= boss.speed;
   }
+
+  // move bullet logic
+  boss_shoot_bullet();
+  for (short i = 0; i < boss_bullet_size; i++) {
+    if (boss_bullets[i].x < 0) continue;  // skip invalid bullets
+    boss_bullets[i].x += boss_bullets[i].speed * boss_bullets[i].x_dir;
+    boss_bullets[i].y += boss_bullets[i].speed * boss_bullets[i].y_dir;
+    if (boss_bullets[i].x > 128 || boss_bullets[i].x < 0) boss_bullets[i].x = -1;
+    if (boss_bullets[i].y > 128 || boss_bullets[i].y < 0) boss_bullets[i].x = -1;
+  }
 }
-void boss_shoot_bullet() {}
+
 void draw_game_screen() {
   // player
-  TFT_DRAW_RECTANGLE(player_prev.x - 2, player_prev.y - 2, player_prev.x + 2, player_prev.y + 2, 0x000); // erase old pixels
-  TFT_DRAW_RECTANGLE(player.x - 2, player.y - 2, player.x + 2, player.y + 2, 0xFFF); // draw new pixels
+  TFT_DRAW_RECTANGLE(player_prev.x - 2, player_prev.y - 2, player_prev.x + 2, player_prev.y + 2,
+                     0x000);                                                          // erase old pixels
+  TFT_DRAW_RECTANGLE(player.x - 2, player.y - 2, player.x + 2, player.y + 2, 0xFFF);  // draw new pixels
 
   // boss
   TFT_DRAW_RECTANGLE(boss_prev.x - 4, boss_prev.y - 4, boss_prev.x + 4, boss_prev.y + 4, 0x000);
   TFT_DRAW_RECTANGLE(boss.x - 4, boss.y - 4, boss.x + 4, boss.y + 4, 0xF00);
+
+  // boss bullets
+  for (short i = 0; i < boss_bullet_size; i++) {
+    if (boss_bullets[i].x >= 0) {
+      TFT_DRAW_PIXEL(boss_bullets_prev[i].x, boss_bullets_prev[i].y, 0x000);
+      TFT_DRAW_PIXEL(boss_bullets[i].x, boss_bullets[i].y, 0xFF0);
+    }
+  }
 
   // save state to overwrite later
   player_prev.x = player.x;
   player_prev.y = player.y;
   boss_prev.x = boss.x;
   boss_prev.y = boss.y;
+  for (short i = 0; i < boss_bullet_size; i++) {
+    boss_bullets_prev[i].x = boss_bullets[i].x;
+    boss_bullets_prev[i].y = boss_bullets[i].y;
+  }
+  for (short i = 0; i < player_bullets_size; i++) {
+    player_bullets_prev[i].x = player_bullets[i].x;
+    player_bullets_prev[i].y = player_bullets[i].y;
+  }
 }
-void erase_game_screen() {}
 
 #endif

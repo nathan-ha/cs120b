@@ -6,7 +6,7 @@
 
  *         Exercise Description: Bullet hell style game
 
- *        
+ *
 
  *         I acknowledge all content contained herein, excluding template or example code, is my own original work.
 
@@ -15,7 +15,6 @@
  *         Demo Link: <URL>
 
  */
-
 
 #include "../lib/helper.h"
 #include "../lib/music.h"
@@ -37,7 +36,7 @@ typedef struct _task {
 
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
-const unsigned long BUZZER_PERIOD = 300;
+const unsigned long BUZZER_PERIOD = 200;
 const unsigned long DISPLAY_PERIOD = 20;
 const unsigned long GAME_PERIOD = 200;
 

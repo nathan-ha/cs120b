@@ -16,14 +16,13 @@
 #ifndef STATE_MACHINES_H
 #define STATE_MACHINES_H
 
-
+#include "../lib/game_logic.h"
 #include "../lib/helper.h"
 #include "../lib/music.h"
 #include "../lib/periph.h"
 #include "../lib/serialATmega.h"
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
-#include "../lib/game_logic.h"
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
@@ -66,8 +65,6 @@ int tick_display(int state) {
     case REFRESH:
       draw_game_screen();
       game_loop();
-      // box_bouncing_loop();  // TODO make game loop
-      erase_game_screen();
       break;
     default:
       break;

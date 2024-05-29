@@ -67,4 +67,9 @@ short max(short a, short b) {
 short min(short a, short b) {
     return (a < b) ? a : b;
 }
+
+float fabs(float a) {
+	if (a < 0) return -a;
+	return a;
+}
 #endif /* HEPLER_H */
