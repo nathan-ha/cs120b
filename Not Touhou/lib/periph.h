@@ -88,17 +88,17 @@ void pbuzzer_change_freq(short f) {
 // Function to send command to display
 void TFT_SEND_COMMAND(char command) {
   PORTD &= ~(1 << PIN_A0);  // set A0 (DC) low for command mode
-  PORTB &= ~(1 << PIN_SS);  // select the tft display
+  // PORTB &= ~(1 << PIN_SS);  // select the tft display
   SPI_SEND(command);        // send command
-  PORTB |= (1 << PIN_SS);   // deselect the tft display
+  // PORTB |= (1 << PIN_SS);   // deselect the tft display
 }
 
 // Function to send data to display
 void TFT_SEND_DATA(char data) {
   PORTD |= (1 << PIN_A0);   // set A0 (DC) high for data mode
-  PORTB &= ~(1 << PIN_SS);  // select the tft display
+  // PORTB &= ~(1 << PIN_SS);  // select the tft display
   SPI_SEND(data);           // send data
-  PORTB |= (1 << PIN_SS);   // deselect the tft display
+  // PORTB |= (1 << PIN_SS);   // deselect the tft display
 }
 
 // clears the display memory faster than writing one pixel at a time

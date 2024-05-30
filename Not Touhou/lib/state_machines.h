@@ -16,6 +16,10 @@
 #ifndef STATE_MACHINES_H
 #define STATE_MACHINES_H
 
+#include <stdio.h>
+#include <string.h>
+
+#include "../lib/LCD.h"
 #include "../lib/game_logic.h"
 #include "../lib/helper.h"
 #include "../lib/music.h"
@@ -23,6 +27,11 @@
 #include "../lib/serialATmega.h"
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
+
+const unsigned long BUZZER_PERIOD = 200;
+const unsigned long DISPLAY_PERIOD = 20;
+const unsigned long GAME_PERIOD = 20;
+const unsigned long LCD_PERIOD = 200;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
@@ -60,11 +69,9 @@ int tick_display(int state) {
     default:
       break;
   }
-
   switch (state) {
     case REFRESH:
       draw_game_screen();
-      game_loop();
       break;
     default:
       break;
@@ -79,9 +86,13 @@ int tick_game(int state) {
       state = GAME_START;
       break;
     case GAME_START:
-      // TODO wait for 3 seconds
+      state = GAME_PLAYING;
       break;
     case GAME_PLAYING:
+      strcpy(lcd_message_top, "Boss health:");
+      char tmp[3] = "";
+      sprintf(tmp, "%.1f", boss.x);  // TODO replace with real value
+      strcat(lcd_message_top, tmp);
       break;
     case GAME_PAUSE:
       break;
@@ -92,9 +103,9 @@ int tick_game(int state) {
     default:
       break;
   }
-
   switch (state) {
     case GAME_START:
+      game_init();
       break;
     case GAME_PLAYING:
       game_loop();
@@ -104,6 +115,42 @@ int tick_game(int state) {
     case GAME_LOSE:
       break;
     case GAME_WIN:
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+enum lcd_state { LCD_INIT, LCD_CLEAR, LCD_TOP, LCD_BOTTOM };
+int tick_lcd(int state) {
+  switch (state) {
+    case LCD_INIT:
+      state = LCD_CLEAR;
+      break;
+    case LCD_CLEAR:
+      state = LCD_TOP;
+      break;
+    case LCD_TOP:
+      state = LCD_BOTTOM;
+      break;
+    case LCD_BOTTOM:
+      state = LCD_CLEAR;
+      break;
+    default:
+      break;
+  }
+  switch (state) {
+    case LCD_CLEAR:
+      lcd_clear();
+      break;
+    case LCD_TOP:
+      lcd_goto_xy(0, 0);
+      lcd_write_str(lcd_message_top);
+      break;
+    case LCD_BOTTOM:
+      lcd_goto_xy(1, 0);
+      lcd_write_str(lcd_message_bottom);
       break;
     default:
       break;

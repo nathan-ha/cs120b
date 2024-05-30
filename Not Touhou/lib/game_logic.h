@@ -28,35 +28,11 @@
 #define PIN_JOYSTICK_Y PORTC1
 #define PIN_JOYSTICK_SW PORTC2
 
-void box_bouncing_loop() {
-  static short x1 = 10, y1 = 50, dir_flag = 0, dir_flagy = 0;
-  TFT_DRAW_RECTANGLE(x1, y1, x1 + 10, y1 + 10, 0);  // clear last rectangle
-  if (x1 >= 120) {
-    dir_flag = 0;
-  } else if (x1 <= 0) {
-    dir_flag = 1;
-  }
-  if (y1 >= 120) {
-    dir_flagy = 0;
-  } else if (y1 <= 0) {
-    dir_flagy = 1;
-  }
-  if (dir_flag) {
-    x1 += 2;
-  } else {
-    x1 -= 2;
-  }
-  if (dir_flagy) {
-    y1 += 2;
-  } else {
-    y1 -= 2;
-  }
-  TFT_DRAW_RECTANGLE(x1, y1, x1 + 10, y1 + 10, 0xFFF);
-}
-
 short health_player = 300;
 short health_boss = 1000;
-char message[16] = "";
+char lcd_message_top[16] = "";
+char lcd_message_bottom[16] = "";
+
 struct vector {
   float x;
   float y;
@@ -211,14 +187,18 @@ void draw_game_screen() {
 
   // boss
   TFT_DRAW_RECTANGLE(boss_prev.x - 4, boss_prev.y - 4, boss_prev.x + 4, boss_prev.y + 4, 0x000);
-  TFT_DRAW_RECTANGLE(boss.x - 4, boss.y - 4, boss.x + 4, boss.y + 4, 0xF00);
+  TFT_DRAW_RECTANGLE(boss.x - 4, boss.y - 4, boss.x + 4, boss.y + 4, 0x00F);
 
   // boss bullets
   for (short i = 0; i < boss_bullet_size; i++) {
     if (boss_bullets[i].x >= 0) {
-      TFT_DRAW_PIXEL(boss_bullets[i].x - (boss_bullets[i].speed * boss_bullets[i].x_dir),
-                     boss_bullets[i].y - (boss_bullets[i].speed * boss_bullets[i].y_dir), 0x000);
-      TFT_DRAW_PIXEL(boss_bullets[i].x, boss_bullets[i].y, 0xFF0);
+      const float bullet_x_offset = boss_bullets[i].speed * boss_bullets[i].x_dir;
+      const float bullet_y_offset = boss_bullets[i].speed * boss_bullets[i].y_dir;
+      TFT_DRAW_RECTANGLE(boss_bullets[i].x - bullet_x_offset - 1, boss_bullets[i].y - bullet_y_offset - 1,
+                         boss_bullets[i].x - bullet_x_offset + 1, boss_bullets[i].y - bullet_y_offset + 1, 0x000);
+
+      TFT_DRAW_RECTANGLE(boss_bullets[i].x - 1, boss_bullets[i].y - 1, boss_bullets[i].x + 1, boss_bullets[i].y + 1,
+                         0xFF0);
     }
   }
 
@@ -228,10 +208,39 @@ void draw_game_screen() {
   boss_prev.x = boss.x;
   boss_prev.y = boss.y;
 
+  // TODO optimimize this away
   for (short i = 0; i < player_bullets_size; i++) {
     player_bullets_prev[i].x = player_bullets[i].x;
     player_bullets_prev[i].y = player_bullets[i].y;
   }
+}
+
+
+// used for testing
+void box_bouncing_loop() {
+  static short x1 = 10, y1 = 50, dir_flag = 0, dir_flagy = 0;
+  TFT_DRAW_RECTANGLE(x1, y1, x1 + 10, y1 + 10, 0);  // clear last rectangle
+  if (x1 >= 120) {
+    dir_flag = 0;
+  } else if (x1 <= 0) {
+    dir_flag = 1;
+  }
+  if (y1 >= 120) {
+    dir_flagy = 0;
+  } else if (y1 <= 0) {
+    dir_flagy = 1;
+  }
+  if (dir_flag) {
+    x1 += 2;
+  } else {
+    x1 -= 2;
+  }
+  if (dir_flagy) {
+    y1 += 2;
+  } else {
+    y1 -= 2;
+  }
+  TFT_DRAW_RECTANGLE(x1, y1, x1 + 10, y1 + 10, 0xFFF);
 }
 
 #endif

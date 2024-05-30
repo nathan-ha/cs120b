@@ -18,7 +18,7 @@
 #define PIN_SCK PORTB5   // SHOULD ALWAYS BE B5 ON THE ARDUINO // sck
 #define PIN_MOSI PORTB3  // SHOULD ALWAYS BE B3 ON THE ARDUINO  // sda
 #define PIN_SS PORTB2    // cs
-#define PIN_A0 PORTD7    // A0 or DC (command/data mode)
+#define PIN_A0 PORTD2    // A0 or DC (command/data mode)
 #define PIN_RST PORTB0   // reset
 
 // If SS is on a different port, make sure to change the init to take that into account.

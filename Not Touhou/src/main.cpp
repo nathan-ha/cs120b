@@ -23,8 +23,9 @@
 #include "../lib/spiAVR.h"
 #include "../lib/state_machines.h"
 #include "../lib/timerISR.h"
+#include "../lib/LCD.h"
 
-#define NUM_TASKS 3
+#define NUM_TASKS 4
 
 // Task struct for concurrent synchSMs implmentations
 typedef struct _task {
@@ -36,11 +37,7 @@ typedef struct _task {
 
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
-const unsigned long BUZZER_PERIOD = 200;
-const unsigned long DISPLAY_PERIOD = 20;
-const unsigned long GAME_PERIOD = 200;
-
-const unsigned long PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD};
+const unsigned long PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD, LCD_PERIOD};
 const unsigned long GCD_PERIOD = findGCD_Array(PERIODS, NUM_TASKS);
 
 task tasks[NUM_TASKS];
@@ -66,11 +63,11 @@ int main(void) {
   PORTC = 0xFF;
   // other inits
   ADC_init();
+  lcd_init();
   serial_init(9600);
   SPI_INIT();
   TFT_INIT();
   pbuzzer_init();
-  game_init();
 
   tasks[0].period = BUZZER_PERIOD;
   tasks[0].state = PBUZZER_INIT;
@@ -87,8 +84,16 @@ int main(void) {
   tasks[2].elapsedTime = GAME_PERIOD;
   tasks[2].TickFct = &tick_game;
 
+  tasks[3].period = LCD_PERIOD;
+  tasks[3].state = LCD_INIT;
+  tasks[3].elapsedTime = LCD_PERIOD;
+  tasks[3].TickFct = &tick_lcd;
+
   TimerSet(GCD_PERIOD);
   TimerOn();
+
+  // lcd_goto_xy(0,0);
+  // lcd_write_str("hello");
 
   while (1) {
   }
