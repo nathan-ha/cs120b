@@ -16,16 +16,19 @@
 
  */
 
+#include "../lib/LCD.h"
 #include "../lib/helper.h"
+#include "../lib/irAVR.h"
 #include "../lib/music.h"
 #include "../lib/periph.h"
 #include "../lib/serialATmega.h"
 #include "../lib/spiAVR.h"
 #include "../lib/state_machines.h"
 #include "../lib/timerISR.h"
-#include "../lib/LCD.h"
 
-#define NUM_TASKS 5
+#define NUM_TASKS 6
+
+#define PIN_IR PD3
 
 // Task struct for concurrent synchSMs implmentations
 typedef struct _task {
@@ -37,7 +40,7 @@ typedef struct _task {
 
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
-const unsigned int PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD, LCD_PERIOD, TIMER_PERIOD};
+const unsigned int PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD, LCD_PERIOD, TIMER_PERIOD, IR_PERIOD};
 const unsigned int GCD_PERIOD = findGCD_Array(PERIODS, NUM_TASKS);
 
 task tasks[NUM_TASKS];
@@ -50,6 +53,7 @@ void TimerISR() {
     }
     tasks[i].elapsedTime += GCD_PERIOD;  // Increment the elapsed time by GCD_PERIOD
   }
+
 }
 
 int main(void) {
@@ -68,6 +72,7 @@ int main(void) {
   SPI_INIT();
   TFT_INIT();
   pbuzzer_init();
+  IRinit(&DDRD, &PIND, PIN_IR);
 
   tasks[0].period = BUZZER_PERIOD;
   tasks[0].state = PBUZZER_INIT;
@@ -93,6 +98,11 @@ int main(void) {
   tasks[4].state = TIMER_INIT;
   tasks[4].elapsedTime = TIMER_PERIOD;
   tasks[4].TickFct = &tick_timer;
+
+  tasks[5].period = IR_PERIOD;
+  tasks[5].state = IR_INIT;
+  tasks[5].elapsedTime = IR_PERIOD;
+  tasks[5].TickFct = &tick_ir;
 
   TimerSet(GCD_PERIOD);
   TimerOn();

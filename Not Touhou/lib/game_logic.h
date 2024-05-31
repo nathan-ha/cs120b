@@ -17,15 +17,17 @@
 
  */
 
+#include <stdlib.h>
+#include <time.h>
+
 #include "../lib/helper.h"
+#include "../lib/irAVR.h"
 #include "../lib/music.h"
 #include "../lib/periph.h"
 #include "../lib/serialATmega.h"
 #include "../lib/spiAVR.h"
+#include "../lib/state_machines.h"
 #include "../lib/timerISR.h"
-
-#include <stdlib.h>
-#include <time.h>
 
 #define PIN_JOYSTICK_X PORTC0
 #define PIN_JOYSTICK_Y PORTC1
@@ -38,6 +40,7 @@ char lcd_message_top[16] = "";
 char lcd_message_bottom[16] = "";
 unsigned char elapsed_time_seconds = 111;
 unsigned short elapsed_time_ms = 222;
+decode_results ir_result;
 
 struct vector {
   float x;
@@ -62,7 +65,6 @@ struct point {
 };
 struct point boss_prev;
 struct point player_prev;
-struct point player_bullets_prev[player_bullets_size];
 
 void game_init() {
   srand(time(NULL));
@@ -98,11 +100,6 @@ void game_init() {
     player_bullets[i].x_dir = 0;
     player_bullets[i].y_dir = 0;
     player_bullets[i].speed = 6;
-  }
-
-  for (short i = 0; i < player_bullets_size; i++) {
-    player_bullets_prev[i].x = -1;
-    player_bullets_prev[i].y = -1;
   }
 }
 void boss_shoot_bullet() {
@@ -143,6 +140,22 @@ void boss_shoot_bullet() {
   }
 }
 
+enum directions_4 { UP, DOWN, LEFT, RIGHT };
+void player_shoot_bullet(directions_4 dir) {
+  for (short i = 0; i < player_bullets_size; i++) {
+    if (player_bullets[i].x >= 0) continue;
+    player_bullets[i].x = player.x;
+    player_bullets[i].y = player.y;
+    // bullet direction
+    // TODO: add multiple directions
+    if (dir == UP) {
+      player_bullets[i].x_dir = 0;
+      player_bullets[i].y_dir = 1;
+    }
+    return;
+  }
+}
+
 void game_loop() {
   const int stick_x = ADC_read(PIN_JOYSTICK_X);
   const int stick_y = ADC_read(PIN_JOYSTICK_Y);
@@ -154,7 +167,7 @@ void game_loop() {
   const char left = stick_y < 200;
   const char neutral = !up && !down && !press && !left && !right;
 
-  const char player_shoot = 1;  // TODO add IR button here
+  const char player_shoot = 1;
 
   // player move logic
   if (up && player.y < 125) player.y += player.speed;
@@ -177,6 +190,7 @@ void game_loop() {
   // move boss bullet logic
   static char i = 0;
   if (i == 0) boss_shoot_bullet();
+  i = (i + 1) % 5;  // shoot bullet every 5 ticks
   for (short i = 0; i < boss_bullet_size; i++) {
     if (boss_bullets[i].x < 0) continue;  // skip invalid bullets
     boss_bullets[i].x += boss_bullets[i].speed * boss_bullets[i].x_dir;
@@ -184,9 +198,24 @@ void game_loop() {
     if (boss_bullets[i].x > 128 || boss_bullets[i].x < 0) boss_bullets[i].x = -1;
     if (boss_bullets[i].y > 128 || boss_bullets[i].y < 0) boss_bullets[i].x = -1;
     // player gets hit
-    if (abs(boss_bullets[i].x - player.x) < 3 && abs(boss_bullets[i].y - player.y) < 3) health_player -= 300;
+    if (fabs(boss_bullets[i].x - player.x) < 3 && fabs(boss_bullets[i].y - player.y) < 3) health_player -= 300;
   }
-  i = (i + 1) % 5;  // shoot bullet every 5 ticks
+
+  // move player bullet logic
+  for (short i = 0; i < player_bullets_size; i++) {
+    if (player_bullets[i].x < 0) continue;  // skip invalid bullets
+    player_bullets[i].x += player_bullets[i].speed * player_bullets[i].x_dir;
+    player_bullets[i].y += player_bullets[i].speed * player_bullets[i].y_dir;
+    if (player_bullets[i].x > 125 || player_bullets[i].x < 0) player_bullets[i].x = -1;
+    if (player_bullets[i].y > 125 || player_bullets[i].y < 0) player_bullets[i].x = -1;
+    // player gets hit
+    if (fabs(player_bullets[i].x - boss.x) < 3 && fabs(player_bullets[i].y - boss.y) < 3) health_boss -= 300;
+  }
+
+  // player shoot bullet logic
+  if (player_shoot) {
+    player_shoot_bullet(UP);
+  }
 
   // bomb/special
   if (press) {
@@ -217,17 +246,24 @@ void draw_game_screen() {
                          0xFF0);
     }
   }
+
+  // player bullets
+  for (short i = 0; i < player_bullets_size; i++) {
+    if (player_bullets[i].x >= 0) {
+      const float bullet_x_offset = player_bullets[i].speed * player_bullets[i].x_dir;
+      const float bullet_y_offset = player_bullets[i].speed * player_bullets[i].y_dir;
+      TFT_DRAW_RECTANGLE(player_bullets[i].x - bullet_x_offset - 1, player_bullets[i].y - bullet_y_offset - 1,
+                         player_bullets[i].x - bullet_x_offset + 1, player_bullets[i].y - bullet_y_offset + 1, 0x000);
+
+      TFT_DRAW_RECTANGLE(player_bullets[i].x - 1, player_bullets[i].y - 1, player_bullets[i].x + 1,
+                         player_bullets[i].y + 1, 0xFF0);
+    }
+  }
   // // save state to overwrite later
   player_prev.x = player.x;
   player_prev.y = player.y;
   boss_prev.x = boss.x;
   boss_prev.y = boss.y;
-
-  // TODO optimimize this away
-  for (short i = 0; i < player_bullets_size; i++) {
-    player_bullets_prev[i].x = player_bullets[i].x;
-    player_bullets_prev[i].y = player_bullets[i].y;
-  }
 }
 
 // message displayed during gameplay

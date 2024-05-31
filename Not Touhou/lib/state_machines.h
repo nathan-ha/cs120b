@@ -22,6 +22,7 @@
 #include "../lib/LCD.h"
 #include "../lib/game_logic.h"
 #include "../lib/helper.h"
+#include "../lib/irAVR.h"
 #include "../lib/music.h"
 #include "../lib/periph.h"
 #include "../lib/serialATmega.h"
@@ -33,6 +34,7 @@ const unsigned short DISPLAY_PERIOD = 20;
 const unsigned short GAME_PERIOD = 20;
 const unsigned short LCD_PERIOD = 300;
 const unsigned short TIMER_PERIOD = 1;
+const unsigned short IR_PERIOD = 100;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
@@ -112,7 +114,7 @@ int tick_game(int state) {
     case GAME_PAUSE:
       break;
     case GAME_LOSE:
-      TFT_DRAW_RECTANGLE(0, 0, 130, 130, 0xF0F);
+      TFT_DRAW_RECTANGLE(0, 0, 130, 130, 0xFFF);
       death_message();
       break;
     case GAME_WIN:
@@ -178,6 +180,30 @@ int tick_timer(int state) {
       if (++elapsed_time_ms >= 1000) {
         elapsed_time_ms = 0;
         elapsed_time_seconds++;
+      }
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+enum ir_state { IR_INIT, IR_RECEIVE };
+int tick_ir(int state) {
+  switch (state) {
+    case IR_INIT:
+      state = IR_RECEIVE;
+      break;
+    case IR_RECEIVE:
+      break;
+    default:
+      break;
+  }
+  switch (state) {
+    case IR_RECEIVE:
+      if (IRdecode(&ir_result)) {
+        serial_println(ir_result.value);
+        IRresume();
       }
       break;
     default:
