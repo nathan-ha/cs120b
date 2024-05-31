@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 //#include <avr/signal.h>
 #include <util/delay.h>
+#include <stdlib.h>
 
 #ifndef HELPER_H
 #define HELPER_H
@@ -68,13 +69,19 @@ short min(short a, short b) {
     return (a < b) ? a : b;
 }
 
+// absolute value of floats
 float fabs(float a) {
 	if (a < 0) return -a;
 	return a;
 }
 
+// absolute value of short ints
 short abs(short a) {
 	if (a < 0) return -a;
 	return a;
+}
+
+float rand_incl(float min, float max) {
+	return min + ((float)rand() / RAND_MAX) * (max - min);
 }
 #endif /* HEPLER_H */

@@ -24,6 +24,9 @@
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
 
+#include <stdlib.h>
+#include <time.h>
+
 #define PIN_JOYSTICK_X PORTC0
 #define PIN_JOYSTICK_Y PORTC1
 #define PIN_JOYSTICK_SW PORTC2
@@ -62,6 +65,8 @@ struct point player_prev;
 struct point player_bullets_prev[player_bullets_size];
 
 void game_init() {
+  srand(time(NULL));
+
   player.x = 64;
   player.y = 20;
   player.x_dir = 0;  // -1 for -x, 0 for no move, 1 for +x
@@ -84,7 +89,7 @@ void game_init() {
     boss_bullets[i].y = -1;
     boss_bullets[i].x_dir = 0;
     boss_bullets[i].y_dir = 0;
-    boss_bullets[i].speed = 1;
+    boss_bullets[i].speed = rand_incl(0.3, 1.2);
   }
 
   for (short i = 0; i < player_bullets_size; i++) {
