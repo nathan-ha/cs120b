@@ -91,6 +91,7 @@ void TFT_SEND_COMMAND(char command) {
   // PORTB &= ~(1 << PIN_SS);  // select the tft display
   SPI_SEND(command);        // send command
   // PORTB |= (1 << PIN_SS);   // deselect the tft display
+  PORTD |= (1 << PIN_A0);  // set A0 back to data mode
 }
 
 // Function to send data to display
@@ -107,16 +108,16 @@ void TFT_FLUSH() {
   TFT_SEND_DATA(0x00);     // start column high byte
   TFT_SEND_DATA(0x00);     // start column low byte
   TFT_SEND_DATA(0x00);     // end column high byte
-  TFT_SEND_DATA(127);      // end column low byte
+  TFT_SEND_DATA(131);      // end column low byte
 
   TFT_SEND_COMMAND(0x2B);  // Set row address
   TFT_SEND_DATA(0x00);     // start row high byte
   TFT_SEND_DATA(0x00);     // start row low byte
   TFT_SEND_DATA(0x00);     // end row high byte
-  TFT_SEND_DATA(127);      // end row low byte
+  TFT_SEND_DATA(131);      // end row low byte
 
   TFT_SEND_COMMAND(0x2C);  // Memory write
-  for (short i = 0; i < 128 * 128; i++) {
+  for (short i = 0; i < 131 * 131; i++) {
     TFT_SEND_DATA(0x00);  // Write black color data to clear the screen
     TFT_SEND_DATA(0x00);
   }
@@ -127,21 +128,21 @@ void TFT_FLUSH() {
 // same logic as flush
 void TFT_DRAW_RECTANGLE(char x1, char y1, char x2, char y2, short color) {
   TFT_SEND_COMMAND(0x2A);  // Set column address
-  TFT_SEND_DATA(0x00);     // start column high byte
-  TFT_SEND_DATA(x1);       // start column low byte
-  TFT_SEND_DATA(0x00);     // end column high byte
-  TFT_SEND_DATA(x2);       // end column low byte
+  SPI_SEND(0x00);     // start column high byte
+  SPI_SEND(x1);       // start column low byte
+  SPI_SEND(0x00);     // end column high byte
+  SPI_SEND(x2);       // end column low byte
 
   TFT_SEND_COMMAND(0x2B);  // Set row address
-  TFT_SEND_DATA(0x00);     // start row high byte
-  TFT_SEND_DATA(y1);       // start row low byte
-  TFT_SEND_DATA(0x00);     // end row high byte
-  TFT_SEND_DATA(y2);       // end row low byte
+  SPI_SEND(0x00);     // start row high byte
+  SPI_SEND(y1);       // start row low byte
+  SPI_SEND(0x00);     // end row high byte
+  SPI_SEND(y2);       // end row low byte
 
   TFT_SEND_COMMAND(0x2C);  // Memory write
   for (short i = 0; i < (x2 - x1) * (y2 - y1); i++) {
-    TFT_SEND_DATA(color >> 4);  // honestly don't know why i have to shift it like this
-    TFT_SEND_DATA(color << 4);  // datasheet doesn't mention it, but it's the only way it works
+    SPI_SEND(color >> 4);  // honestly don't know why i have to shift it like this
+    SPI_SEND(color << 4);  // datasheet doesn't mention it, but it's the only way it works
   }
 }
 
@@ -180,21 +181,21 @@ void TFT_INIT() {
 // draws pixels at the x y coords
 void TFT_DRAW_PIXEL(char x, char y, short color) {
   TFT_SEND_COMMAND(0x2A);  // Set column address
-  TFT_SEND_DATA(0x00);     // start column high byte
-  TFT_SEND_DATA(x);        // start column low byte
-  TFT_SEND_DATA(0x00);     // end column high byte
-  TFT_SEND_DATA(x);        // end column low byte
+  SPI_SEND(0x00);     // start column high byte
+  SPI_SEND(x);        // start column low byte
+  SPI_SEND(0x00);     // end column high byte
+  SPI_SEND(x);        // end column low byte
 
   TFT_SEND_COMMAND(0x2B);  // Set row address
-  TFT_SEND_DATA(0x00);     // start row high byte
-  TFT_SEND_DATA(y);        // start row low byte
-  TFT_SEND_DATA(0x00);     // end row high byte
-  TFT_SEND_DATA(y);        // end row low byte
+  SPI_SEND(0x00);     // start row high byte
+  SPI_SEND(y);        // start row low byte
+  SPI_SEND(0x00);     // end row high byte
+  SPI_SEND(y);        // end row low byte
 
   // Set pixel color
   TFT_SEND_COMMAND(0x2C);     // Memory write
-  TFT_SEND_DATA(color >> 4);  // honestly don't know why i have to shift it like this
-  TFT_SEND_DATA(color << 4);  // I just used trial and error, but it has something to do with 12 bit rgb
+  SPI_SEND(color >> 4);  // honestly don't know why i have to shift it like this
+  SPI_SEND(color << 4);  // I just used trial and error, but it has something to do with 12 bit rgb
 }
 
 // ****************************************************************************************************

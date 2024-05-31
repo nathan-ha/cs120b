@@ -28,10 +28,13 @@
 #define PIN_JOYSTICK_Y PORTC1
 #define PIN_JOYSTICK_SW PORTC2
 
+// shared variables
 short health_player = 300;
 short health_boss = 1000;
 char lcd_message_top[16] = "";
 char lcd_message_bottom[16] = "";
+unsigned char time_M = 111;
+unsigned short time_SSS = 222;
 
 struct vector {
   float x;
@@ -168,15 +171,17 @@ void game_loop() {
 
   // move boss bullet logic
   static char i = 0;
-  if (i % 5 == 0) boss_shoot_bullet();
+  if (i == 0) boss_shoot_bullet();
   for (short i = 0; i < boss_bullet_size; i++) {
     if (boss_bullets[i].x < 0) continue;  // skip invalid bullets
     boss_bullets[i].x += boss_bullets[i].speed * boss_bullets[i].x_dir;
     boss_bullets[i].y += boss_bullets[i].speed * boss_bullets[i].y_dir;
     if (boss_bullets[i].x > 128 || boss_bullets[i].x < 0) boss_bullets[i].x = -1;
     if (boss_bullets[i].y > 128 || boss_bullets[i].y < 0) boss_bullets[i].x = -1;
+    // player gets hit
+    if (abs(boss_bullets[i].x - player.x) < 3 && abs(boss_bullets[i].y - player.y) < 3) health_player -= 300;
   }
-  i = (i + 1) % 5;
+  i = (i + 1) % 5;  // shoot bullet every 5 ticks
 }
 
 void draw_game_screen() {
@@ -201,7 +206,6 @@ void draw_game_screen() {
                          0xFF0);
     }
   }
-
   // // save state to overwrite later
   player_prev.x = player.x;
   player_prev.y = player.y;
@@ -213,6 +217,27 @@ void draw_game_screen() {
     player_bullets_prev[i].x = player_bullets[i].x;
     player_bullets_prev[i].y = player_bullets[i].y;
   }
+}
+
+// message displayed during gameplay
+void gameplay_message() {
+  char tmp[3] = "";
+  strcpy(lcd_message_top, "Boss health:");
+  sprintf(tmp, "%d", health_boss);
+  strcat(lcd_message_top, tmp);
+
+  strcpy(lcd_message_bottom, "Time: ");
+  sprintf(tmp, "%d", time_M);
+  strcat(lcd_message_bottom, tmp);
+  strcat(lcd_message_bottom, ":");
+  sprintf(tmp, "%d", time_SSS);
+  strcat(lcd_message_bottom, tmp);
+}
+
+// message displayed after dying
+void death_message() {
+  strcpy(lcd_message_top, "You Died...L");
+  strcpy(lcd_message_bottom, "");
 }
 
 

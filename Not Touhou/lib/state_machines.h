@@ -28,10 +28,11 @@
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
 
-const unsigned long BUZZER_PERIOD = 200;
-const unsigned long DISPLAY_PERIOD = 20;
-const unsigned long GAME_PERIOD = 20;
-const unsigned long LCD_PERIOD = 200;
+const unsigned short BUZZER_PERIOD = 220;
+const unsigned short DISPLAY_PERIOD = 20;
+const unsigned short GAME_PERIOD = 20;
+const unsigned short LCD_PERIOD = 300;
+const unsigned short TIMER_PERIOD = 1;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
@@ -49,7 +50,7 @@ int tick_passive_buzzer(int state) {
 
   switch (state) {
     case PLAY:
-      pbuzzer_change_freq(night_of_knights[i]);
+      pbuzzer_change_freq(pgm_read_word(&night_of_knights[i]));
       i = (i + 1) % night_of_knight_length;
       break;
     default:
@@ -89,10 +90,7 @@ int tick_game(int state) {
       state = GAME_PLAYING;
       break;
     case GAME_PLAYING:
-      strcpy(lcd_message_top, "Boss health:");
-      char tmp[3] = "";
-      sprintf(tmp, "%.1f", boss.x);  // TODO replace with real value
-      strcat(lcd_message_top, tmp);
+      if (health_player <= 0) state = GAME_LOSE;
       break;
     case GAME_PAUSE:
       break;
@@ -108,11 +106,14 @@ int tick_game(int state) {
       game_init();
       break;
     case GAME_PLAYING:
+      gameplay_message();
       game_loop();
       break;
     case GAME_PAUSE:
       break;
     case GAME_LOSE:
+      TFT_DRAW_RECTANGLE(0, 0, 130, 130, 0xF0F);
+      death_message();
       break;
     case GAME_WIN:
       break;
@@ -135,7 +136,7 @@ int tick_lcd(int state) {
       state = LCD_BOTTOM;
       break;
     case LCD_BOTTOM:
-      state = LCD_CLEAR;
+      state = LCD_INIT;
       break;
     default:
       break;
@@ -151,6 +152,32 @@ int tick_lcd(int state) {
     case LCD_BOTTOM:
       lcd_goto_xy(1, 0);
       lcd_write_str(lcd_message_bottom);
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+enum timer_state { TIMER_INIT, TIMER_TICK };
+int tick_timer(int state) {
+  switch (state) {
+    case TIMER_INIT:
+      time_M = 0;
+      time_SSS = 0;
+      state = TIMER_TICK;
+      break;
+    case TIMER_TICK:
+      break;
+    default:
+      break;
+  }
+  switch (state) {
+    case TIMER_TICK:
+      if (++time_SSS >= 1000) {
+        time_SSS = 0;
+        time_M++;
+      }
       break;
     default:
       break;

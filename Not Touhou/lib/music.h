@@ -16,104 +16,106 @@
 #ifndef MUSIC_H
 #define MUSIC_H
 
+#include <avr/pgmspace.h>
+
 
 
 // piano notes and their frequencies
 // 0 octave was too low
-const short C1 = 33;
-const short CSHARP1_DFLAT1 = 35;
-const short D1 = 37;
-const short DSHARP1_EFLAT1 = 39;
-const short E1 = 41;
-const short F1 = 44;
-const short FSHARP1_GFLAT1 = 46;
-const short G1 = 49;
-const short GSHARP1_AFLAT1 = 52;
-const short A1 = 55;
-const short ASHARP1_BFLAT1 = 58;
-const short B1 = 62;
-
-const short C2 = 65;
-const short CSHARP2_DFLAT2 = 69;
-const short D2 = 73;
-const short DSHARP2_EFLAT2 = 78;
-const short E2 = 82;
-const short F2 = 87;
-const short FSHARP2_GFLAT2 = 93;
-const short G2 = 98;
-const short GSHARP2_AFLAT2 = 104;
-const short A2 = 110;
-const short ASHARP2_BFLAT2 = 117;
-const short B2 = 123;
-
-const short C3 = 131;
-const short CSHARP3_DFLAT3 = 139;
-const short D3 = 147;
-const short DSHARP3_EFLAT3 = 156;
-const short E3 = 165;
-const short F3 = 175;
-const short FSHARP3_GFLAT3 = 185;
-const short G3 = 196;
-const short GSHARP3_AFLAT3 = 208;
-const short A3 = 220;
-const short ASHARP3_BFLAT3 = 233;
-const short B3 = 247;
-
-const short C4 = 262;
-const short CSHARP4_DFLAT4 = 277;
-const short D4 = 294;
-const short DSHARP4_EFLAT4 = 311;
-const short E4 = 330;
-const short F4 = 349;
-const short FSHARP4_GFLAT4 = 370;
-const short G4 = 392;
-const short GSHARP4_AFLAT4 = 415;
-const short A4 = 440;
-const short ASHARP4_BFLAT4 = 466;
-const short B4 = 494;
-
-const short C5 = 523;
-const short CSHARP5_DFLAT5 = 554;
-const short D5 = 587;
-const short DSHARP5_EFLAT5 = 622;
-const short E5 = 659;
-const short F5 = 698;
-const short FSHARP5_GFLAT5 = 740;
-const short G5 = 784;
-const short GSHARP5_AFLAT5 = 831;
-const short A5 = 880;
-const short ASHARP5_BFLAT5 = 932;
-const short B5 = 988;
-
-const short C6 = 1047;
-const short CSHARP6_DFLAT6 = 1109;
-const short D6 = 1175;
-const short DSHARP6_EFLAT6 = 1245;
-const short E6 = 1319;
-const short F6 = 1397;
-const short FSHARP6_GFLAT6 = 1480;
-const short G6 = 1568;
-const short GSHARP6_AFLAT6 = 1661;
-const short A6 = 1760;
-const short ASHARP6_BFLAT6 = 1865;
-const short B6 = 1976;
-
-const short C7 = 2093;
-const short CSHARP7_DFLAT7 = 2217;
-const short D7 = 2349;
-const short DSHARP7_EFLAT7 = 2489;
-const short E7 = 2637;
-const short F7 = 2794;
-const short FSHARP7_GFLAT7 = 2960;
-const short G7 = 3136;
-const short GSHARP7_AFLAT7 = 3322;
-const short A7 = 3520;
-const short ASHARP7_BFLAT7 = 3729;
-const short B7 = 3951;
+const PROGMEM short C1 = 33;
+const PROGMEM short CSHARP1_DFLAT1 = 35;
+const PROGMEM short D1 = 37;
+const PROGMEM short DSHARP1_EFLAT1 = 39;
+const PROGMEM short E1 = 41;
+const PROGMEM short F1 = 44;
+const PROGMEM short FSHARP1_GFLAT1 = 46;
+const PROGMEM short G1 = 49;
+const PROGMEM short GSHARP1_AFLAT1 = 52;
+const PROGMEM short A1 = 55;
+const PROGMEM short ASHARP1_BFLAT1 = 58;
+const PROGMEM short B1 = 62;
+ 
+const PROGMEM short C2 = 65;
+const PROGMEM short CSHARP2_DFLAT2 = 69;
+const PROGMEM short D2 = 73;
+const PROGMEM short DSHARP2_EFLAT2 = 78;
+const PROGMEM short E2 = 82;
+const PROGMEM short F2 = 87;
+const PROGMEM short FSHARP2_GFLAT2 = 93;
+const PROGMEM short G2 = 98;
+const PROGMEM short GSHARP2_AFLAT2 = 104;
+const PROGMEM short A2 = 110;
+const PROGMEM short ASHARP2_BFLAT2 = 117;
+const PROGMEM short B2 = 123;
+ 
+const PROGMEM short C3 = 131;
+const PROGMEM short CSHARP3_DFLAT3 = 139;
+const PROGMEM short D3 = 147;
+const PROGMEM short DSHARP3_EFLAT3 = 156;
+const PROGMEM short E3 = 165;
+const PROGMEM short F3 = 175;
+const PROGMEM short FSHARP3_GFLAT3 = 185;
+const PROGMEM short G3 = 196;
+const PROGMEM short GSHARP3_AFLAT3 = 208;
+const PROGMEM short A3 = 220;
+const PROGMEM short ASHARP3_BFLAT3 = 233;
+const PROGMEM short B3 = 247;
+ 
+const PROGMEM short C4 = 262;
+const PROGMEM short CSHARP4_DFLAT4 = 277;
+const PROGMEM short D4 = 294;
+const PROGMEM short DSHARP4_EFLAT4 = 311;
+const PROGMEM short E4 = 330;
+const PROGMEM short F4 = 349;
+const PROGMEM short FSHARP4_GFLAT4 = 370;
+const PROGMEM short G4 = 392;
+const PROGMEM short GSHARP4_AFLAT4 = 415;
+const PROGMEM short A4 = 440;
+const PROGMEM short ASHARP4_BFLAT4 = 466;
+const PROGMEM short B4 = 494;
+ 
+const PROGMEM short C5 = 523;
+const PROGMEM short CSHARP5_DFLAT5 = 554;
+const PROGMEM short D5 = 587;
+const PROGMEM short DSHARP5_EFLAT5 = 622;
+const PROGMEM short E5 = 659;
+const PROGMEM short F5 = 698;
+const PROGMEM short FSHARP5_GFLAT5 = 740;
+const PROGMEM short G5 = 784;
+const PROGMEM short GSHARP5_AFLAT5 = 831;
+const PROGMEM short A5 = 880;
+const PROGMEM short ASHARP5_BFLAT5 = 932;
+const PROGMEM short B5 = 988;
+ 
+const PROGMEM short C6 = 1047;
+const PROGMEM short CSHARP6_DFLAT6 = 1109;
+const PROGMEM short D6 = 1175;
+const PROGMEM short DSHARP6_EFLAT6 = 1245;
+const PROGMEM short E6 = 1319;
+const PROGMEM short F6 = 1397;
+const PROGMEM short FSHARP6_GFLAT6 = 1480;
+const PROGMEM short G6 = 1568;
+const PROGMEM short GSHARP6_AFLAT6 = 1661;
+const PROGMEM short A6 = 1760;
+const PROGMEM short ASHARP6_BFLAT6 = 1865;
+const PROGMEM short B6 = 1976;
+ 
+const PROGMEM short C7 = 2093;
+const PROGMEM short CSHARP7_DFLAT7 = 2217;
+const PROGMEM short D7 = 2349;
+const PROGMEM short DSHARP7_EFLAT7 = 2489;
+const PROGMEM short E7 = 2637;
+const PROGMEM short F7 = 2794;
+const PROGMEM short FSHARP7_GFLAT7 = 2960;
+const PROGMEM short G7 = 3136;
+const PROGMEM short GSHARP7_AFLAT7 = 3322;
+const PROGMEM short A7 = 3520;
+const PROGMEM short ASHARP7_BFLAT7 = 3729;
+const PROGMEM short B7 = 3951;
 
 // anything past this is TOO high
 
-short night_of_knights[] = { 
+const short PROGMEM night_of_knights[] = { 
                              D4, F4, E4, D4, C4, A4, E4, C4,  // intro
                             //  D4, F4, E4, D4, C4, A4, E4, C4, C4,
                             //  D4, F4, E4, D4, C4, A4, E4, C4, C4,

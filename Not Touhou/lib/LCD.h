@@ -32,30 +32,34 @@ void lcd_send_command(uint8_t command) {
   DATA_BUS = (command & 0b11110000);
   CTL_BUS &= ~(1 << LCD_RS);
   CTL_BUS |= (1 << LCD_EN);
-  _delay_ms(0.2);
+  _delay_us(100);
+  // _delay_ms(0.2);
   CTL_BUS &= ~(1 << LCD_EN);
-  _delay_ms(0.2);
+  // _delay_ms(0.2);
+  _delay_us(100);
   DATA_BUS = ((command & 0b00001111) << 4);
   CTL_BUS |= (1 << LCD_EN);
-  _delay_ms(0.2);
+  // _delay_ms(0.2);
+  _delay_us(100);
   CTL_BUS &= ~(1 << LCD_EN);
-  _delay_ms(0.2);
+  // _delay_ms(0.2);
+  _delay_us(100);
 }
 
 void lcd_init(void) {
   DATA_DDR = (1 << LCD_D7) | (1 << LCD_D6) | (1 << LCD_D5) | (1 << LCD_D4);
   CTL_DDR |= (1 << LCD_EN) | (1 << LCD_RS);
-
+  _delay_ms(10);
   DATA_BUS = (0 << LCD_D7) | (0 << LCD_D6) | (1 << LCD_D5) | (0 << LCD_D4);
   CTL_BUS |= (1 << LCD_EN) | (0 << LCD_RS);
-  _delay_ms(1);
+  _delay_ms(10);
   CTL_BUS &= ~(1 << LCD_EN);
-  _delay_ms(1);
+  _delay_ms(10);
 
   lcd_send_command(LCD_CMD_4BIT_2ROW_5X7);
-  _delay_ms(1);
+  _delay_ms(10);
   lcd_send_command(LCD_CMD_DISPLAY_CURSOR_BLINK);
-  _delay_ms(1);
+  _delay_ms(10);
   lcd_send_command(0x80);
   _delay_ms(10);
 }
@@ -64,14 +68,18 @@ void lcd_write_character(char character) {
   DATA_BUS = (DATA_BUS & 0x0F) | (character & 0b11110000);
   CTL_BUS |= (1 << LCD_RS);
   CTL_BUS |= (1 << LCD_EN);
-  _delay_ms(0.1);
+  // _delay_ms(0.2);
+  _delay_us(100);
   CTL_BUS &= ~(1 << LCD_EN);
-  _delay_ms(0.1);
+  // _delay_ms(0.2);
+  _delay_us(100);
   DATA_BUS = (DATA_BUS & 0x0F) | ((character & 0b00001111) << 4);
   CTL_BUS |= (1 << LCD_EN);
-  _delay_ms(0.1);
+  // _delay_ms(0.2);
+  _delay_us(100);
   CTL_BUS &= ~(1 << LCD_EN);
-  _delay_ms(0.1);
+  // _delay_ms(0.2);
+  _delay_us(100);
 }
 
 void lcd_write_str(char* str) {
@@ -84,7 +92,7 @@ void lcd_write_str(char* str) {
 
 void lcd_clear() {
   lcd_send_command(LCD_CMD_CLEAR_DISPLAY);
-//   _delay_ms(5);
+  // _delay_ms(0.2);
 }
 void lcd_goto_xy(uint8_t line, uint8_t pos)  // line = 0 or 1
 {

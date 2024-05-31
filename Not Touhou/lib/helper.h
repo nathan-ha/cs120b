@@ -22,9 +22,9 @@ unsigned long int findGCD(unsigned long int a, unsigned long int b)
 }
 
 // computes gcd of entire array
-unsigned long int findGCD_Array(const unsigned long int *arr, unsigned long int size) {
-	unsigned long int curr_gcd = arr[0];
-	for (unsigned long int i = 1; i < size; i++) {
+unsigned int findGCD_Array(const unsigned int *arr, unsigned int size) {
+	unsigned int curr_gcd = arr[0];
+	for (unsigned int i = 1; i < size; i++) {
 		curr_gcd = findGCD(curr_gcd, arr[i]);
 	}
 	return curr_gcd;
@@ -69,6 +69,11 @@ short min(short a, short b) {
 }
 
 float fabs(float a) {
+	if (a < 0) return -a;
+	return a;
+}
+
+short abs(short a) {
 	if (a < 0) return -a;
 	return a;
 }
