@@ -33,8 +33,8 @@ short health_player = 300;
 short health_boss = 1000;
 char lcd_message_top[16] = "";
 char lcd_message_bottom[16] = "";
-unsigned char time_M = 111;
-unsigned short time_SSS = 222;
+unsigned char elapsed_time_seconds = 111;
+unsigned short elapsed_time_ms = 222;
 
 struct vector {
   float x;
@@ -182,6 +182,12 @@ void game_loop() {
     if (abs(boss_bullets[i].x - player.x) < 3 && abs(boss_bullets[i].y - player.y) < 3) health_player -= 300;
   }
   i = (i + 1) % 5;  // shoot bullet every 5 ticks
+
+  // bomb/special
+  if (press) {
+    TFT_DRAW_RECTANGLE(0, 0, 131, 131, 0xF00);
+    TFT_FLUSH();
+  }
 }
 
 void draw_game_screen() {
@@ -227,19 +233,27 @@ void gameplay_message() {
   strcat(lcd_message_top, tmp);
 
   strcpy(lcd_message_bottom, "Time: ");
-  sprintf(tmp, "%d", time_M);
+  sprintf(tmp, "%d", elapsed_time_seconds);
   strcat(lcd_message_bottom, tmp);
-  strcat(lcd_message_bottom, ":");
-  sprintf(tmp, "%d", time_SSS);
+  strcat(lcd_message_bottom, ".");
+  sprintf(tmp, "%d", elapsed_time_ms);
   strcat(lcd_message_bottom, tmp);
+  strcat(lcd_message_bottom, " s");
 }
 
 // message displayed after dying
 void death_message() {
   strcpy(lcd_message_top, "You Died...L");
-  strcpy(lcd_message_bottom, "");
-}
 
+  char tmp[3];
+  strcpy(lcd_message_bottom, "Time: ");
+  sprintf(tmp, "%d", elapsed_time_seconds);
+  strcat(lcd_message_bottom, tmp);
+  strcat(lcd_message_bottom, ".");
+  sprintf(tmp, "%d", elapsed_time_ms);
+  strcat(lcd_message_bottom, tmp);
+  strcat(lcd_message_bottom, " s");
+}
 
 // used for testing
 void box_bouncing_loop() {

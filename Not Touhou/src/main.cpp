@@ -64,7 +64,6 @@ int main(void) {
   // other inits
   ADC_init();
   lcd_init();
-  lcd_init();
   serial_init(9600);
   SPI_INIT();
   TFT_INIT();

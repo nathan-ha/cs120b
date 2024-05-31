@@ -163,8 +163,8 @@ enum timer_state { TIMER_INIT, TIMER_TICK };
 int tick_timer(int state) {
   switch (state) {
     case TIMER_INIT:
-      time_M = 0;
-      time_SSS = 0;
+      elapsed_time_seconds = 0;
+      elapsed_time_ms = 0;
       state = TIMER_TICK;
       break;
     case TIMER_TICK:
@@ -174,9 +174,10 @@ int tick_timer(int state) {
   }
   switch (state) {
     case TIMER_TICK:
-      if (++time_SSS >= 1000) {
-        time_SSS = 0;
-        time_M++;
+      if (health_player <= 0) break;
+      if (++elapsed_time_ms >= 1000) {
+        elapsed_time_ms = 0;
+        elapsed_time_seconds++;
       }
       break;
     default:
