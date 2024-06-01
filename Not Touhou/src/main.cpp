@@ -53,7 +53,6 @@ void TimerISR() {
     }
     tasks[i].elapsedTime += GCD_PERIOD;  // Increment the elapsed time by GCD_PERIOD
   }
-
 }
 
 int main(void) {
@@ -62,9 +61,15 @@ int main(void) {
   PORTB = 0x00;
   DDRD = 0xFF;
   PORTD = 0x00;
+
+  // pin 3 (ir) input
+  DDRD &= ~(1 << PD3);
+  DDRD |= (1 << PD3);
+
   // port c inputs
   DDRC = 0x00;
   PORTC = 0xFF;
+  
   // other inits
   ADC_init();
   lcd_init();

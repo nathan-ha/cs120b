@@ -40,7 +40,7 @@ char lcd_message_top[16] = "";
 char lcd_message_bottom[16] = "";
 unsigned char elapsed_time_seconds = 111;
 unsigned short elapsed_time_ms = 222;
-decode_results ir_result;
+long ir_value = 0;
 
 struct vector {
   float x;
@@ -53,7 +53,7 @@ struct vector {
 struct vector player;
 struct vector boss;
 
-struct vector boss_bullets[80];
+struct vector boss_bullets[30];
 struct vector player_bullets[10];
 
 const int boss_bullet_size = sizeof(boss_bullets) / sizeof(boss_bullets[0]);
@@ -63,6 +63,7 @@ struct point {
   float x;
   float y;
 };
+
 struct point boss_prev;
 struct point player_prev;
 
@@ -73,13 +74,13 @@ void game_init() {
   player.y = 20;
   player.x_dir = 0;  // -1 for -x, 0 for no move, 1 for +x
   player.y_dir = 0;
-  player.speed = 1.5;
+  player.speed = 5;
 
   boss.x = 100;
   boss.y = 64;
   boss.x_dir = 0;
   boss.y_dir = 0;
-  boss.speed = 0.4;
+  boss.speed = 1;
 
   boss_prev.x = boss.x;
   boss_prev.y = boss.y;
@@ -91,7 +92,7 @@ void game_init() {
     boss_bullets[i].y = -1;
     boss_bullets[i].x_dir = 0;
     boss_bullets[i].y_dir = 0;
-    boss_bullets[i].speed = rand_incl(0.3, 1.2);
+    boss_bullets[i].speed = rand_incl(2, 4);
   }
 
   for (short i = 0; i < player_bullets_size; i++) {
@@ -99,7 +100,7 @@ void game_init() {
     player_bullets[i].y = -1;
     player_bullets[i].x_dir = 0;
     player_bullets[i].y_dir = 0;
-    player_bullets[i].speed = 6;
+    player_bullets[i].speed = 10;
   }
 }
 void boss_shoot_bullet() {
@@ -188,9 +189,7 @@ void game_loop() {
   }
 
   // move boss bullet logic
-  static char i = 0;
-  if (i == 0) boss_shoot_bullet();
-  i = (i + 1) % 5;  // shoot bullet every 5 ticks
+  boss_shoot_bullet();
   for (short i = 0; i < boss_bullet_size; i++) {
     if (boss_bullets[i].x < 0) continue;  // skip invalid bullets
     boss_bullets[i].x += boss_bullets[i].speed * boss_bullets[i].x_dir;
@@ -198,7 +197,7 @@ void game_loop() {
     if (boss_bullets[i].x > 128 || boss_bullets[i].x < 0) boss_bullets[i].x = -1;
     if (boss_bullets[i].y > 128 || boss_bullets[i].y < 0) boss_bullets[i].x = -1;
     // player gets hit
-    if (fabs(boss_bullets[i].x - player.x) < 3 && fabs(boss_bullets[i].y - player.y) < 3) health_player -= 300;
+    if (fabs(boss_bullets[i].x - player.x) < 5 && fabs(boss_bullets[i].y - player.y) < 5) health_player -= 300;
   }
 
   // move player bullet logic
@@ -209,7 +208,7 @@ void game_loop() {
     if (player_bullets[i].x > 125 || player_bullets[i].x < 0) player_bullets[i].x = -1;
     if (player_bullets[i].y > 125 || player_bullets[i].y < 0) player_bullets[i].x = -1;
     // player gets hit
-    if (fabs(player_bullets[i].x - boss.x) < 3 && fabs(player_bullets[i].y - boss.y) < 3) health_boss -= 300;
+    if (fabs(player_bullets[i].x - boss.x) < 5 && fabs(player_bullets[i].y - boss.y) < 5) health_boss -= 50;
   }
 
   // player shoot bullet logic
@@ -259,7 +258,8 @@ void draw_game_screen() {
                          player_bullets[i].y + 1, 0xFF0);
     }
   }
-  // // save state to overwrite later
+
+  // save state to overwrite later
   player_prev.x = player.x;
   player_prev.y = player.y;
   boss_prev.x = boss.x;
@@ -268,18 +268,23 @@ void draw_game_screen() {
 
 // message displayed during gameplay
 void gameplay_message() {
-  char tmp[3] = "";
-  strcpy(lcd_message_top, "Boss health:");
-  sprintf(tmp, "%d", health_boss);
-  strcat(lcd_message_top, tmp);
+  char tmp[16] = "";
+  strncpy(lcd_message_top, "Boss hp:", 16 - 1);
+  lcd_message_top[16 - 1] = '\0';
 
-  strcpy(lcd_message_bottom, "Time: ");
-  sprintf(tmp, "%d", elapsed_time_seconds);
-  strcat(lcd_message_bottom, tmp);
-  strcat(lcd_message_bottom, ".");
-  sprintf(tmp, "%d", elapsed_time_ms);
-  strcat(lcd_message_bottom, tmp);
-  strcat(lcd_message_bottom, " s");
+  snprintf(tmp, sizeof(tmp), "%d", health_boss);
+  strncat(lcd_message_top, tmp, 16 - strlen(lcd_message_top) - 1);
+
+  strncpy(lcd_message_bottom, "Time: ", 16 - 1);
+  lcd_message_bottom[16 - 1] = '\0';
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_seconds);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, ".", 16 - strlen(lcd_message_bottom) - 1);
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_ms);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, " s", 16 - strlen(lcd_message_bottom) - 1);
 }
 
 // message displayed after dying

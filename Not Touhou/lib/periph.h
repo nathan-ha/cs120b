@@ -78,6 +78,12 @@ void pbuzzer_change_freq(short f) {
 }
 
 // ****************************************************************************************************
+// ******************************** IR REMOTE FUNCTIONS ******************************************
+// ****************************************************************************************************
+
+
+
+// ****************************************************************************************************
 // ****************************************************************************************************
 // ****************************************************************************************************
 // ********************************* TFT DISPLAY COMMANDS *********************************************
@@ -89,16 +95,16 @@ void pbuzzer_change_freq(short f) {
 void TFT_SEND_COMMAND(char command) {
   PORTD &= ~(1 << PIN_A0);  // set A0 (DC) low for command mode
   // PORTB &= ~(1 << PIN_SS);  // select the tft display
-  SPI_SEND(command);        // send command
+  SPI_SEND(command);  // send command
   // PORTB |= (1 << PIN_SS);   // deselect the tft display
   PORTD |= (1 << PIN_A0);  // set A0 back to data mode
 }
 
 // Function to send data to display
 void TFT_SEND_DATA(char data) {
-  PORTD |= (1 << PIN_A0);   // set A0 (DC) high for data mode
+  PORTD |= (1 << PIN_A0);  // set A0 (DC) high for data mode
   // PORTB &= ~(1 << PIN_SS);  // select the tft display
-  SPI_SEND(data);           // send data
+  SPI_SEND(data);  // send data
   // PORTB |= (1 << PIN_SS);   // deselect the tft display
 }
 
@@ -128,16 +134,16 @@ void TFT_FLUSH() {
 // same logic as flush
 void TFT_DRAW_RECTANGLE(char x1, char y1, char x2, char y2, short color) {
   TFT_SEND_COMMAND(0x2A);  // Set column address
-  SPI_SEND(0x00);     // start column high byte
-  SPI_SEND(x1);       // start column low byte
-  SPI_SEND(0x00);     // end column high byte
-  SPI_SEND(x2);       // end column low byte
+  SPI_SEND(0x00);          // start column high byte
+  SPI_SEND(x1);            // start column low byte
+  SPI_SEND(0x00);          // end column high byte
+  SPI_SEND(x2);            // end column low byte
 
   TFT_SEND_COMMAND(0x2B);  // Set row address
-  SPI_SEND(0x00);     // start row high byte
-  SPI_SEND(y1);       // start row low byte
-  SPI_SEND(0x00);     // end row high byte
-  SPI_SEND(y2);       // end row low byte
+  SPI_SEND(0x00);          // start row high byte
+  SPI_SEND(y1);            // start row low byte
+  SPI_SEND(0x00);          // end row high byte
+  SPI_SEND(y2);            // end row low byte
 
   TFT_SEND_COMMAND(0x2C);  // Memory write
   for (short i = 0; i < (x2 - x1) * (y2 - y1); i++) {
@@ -181,21 +187,21 @@ void TFT_INIT() {
 // draws pixels at the x y coords
 void TFT_DRAW_PIXEL(char x, char y, short color) {
   TFT_SEND_COMMAND(0x2A);  // Set column address
-  SPI_SEND(0x00);     // start column high byte
-  SPI_SEND(x);        // start column low byte
-  SPI_SEND(0x00);     // end column high byte
-  SPI_SEND(x);        // end column low byte
+  SPI_SEND(0x00);          // start column high byte
+  SPI_SEND(x);             // start column low byte
+  SPI_SEND(0x00);          // end column high byte
+  SPI_SEND(x);             // end column low byte
 
   TFT_SEND_COMMAND(0x2B);  // Set row address
-  SPI_SEND(0x00);     // start row high byte
-  SPI_SEND(y);        // start row low byte
-  SPI_SEND(0x00);     // end row high byte
-  SPI_SEND(y);        // end row low byte
+  SPI_SEND(0x00);          // start row high byte
+  SPI_SEND(y);             // start row low byte
+  SPI_SEND(0x00);          // end row high byte
+  SPI_SEND(y);             // end row low byte
 
   // Set pixel color
-  TFT_SEND_COMMAND(0x2C);     // Memory write
-  SPI_SEND(color >> 4);  // honestly don't know why i have to shift it like this
-  SPI_SEND(color << 4);  // I just used trial and error, but it has something to do with 12 bit rgb
+  TFT_SEND_COMMAND(0x2C);  // Memory write
+  SPI_SEND(color >> 4);    // honestly don't know why i have to shift it like this
+  SPI_SEND(color << 4);    // I just used trial and error, but it has something to do with 12 bit rgb
 }
 
 // ****************************************************************************************************

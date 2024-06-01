@@ -17,6 +17,7 @@ successful or failed decode, you will need to run IRresume().*/
 #include <util/delay.h>
 
 #include "helper.h"
+#include "serialATmega.h"
 
 // ir codes
 #define VOL_UP_IR 16736925
@@ -24,6 +25,7 @@ successful or failed decode, you will need to run IRresume().*/
 #define LEFT_IR 16720605
 #define RIGHT_IR 16761405
 #define PAUSE_IR 16712445
+#define POWER_IR 16753245
 
 #define LTOL (1.0 - 25 / 100.)
 #define UTOL (1.0 + 25 / 100.)
@@ -103,7 +105,7 @@ long decodeNEC(decode_results *results) {
   if (irparams.rawlen == 4 && MATCH_SPACE(results->rawbuf[offset], 2250) &&
       MATCH_MARK(results->rawbuf[offset + 1], 560)) {
     results->bits = 0;
-    // results->value = 0xFFFFFFFF;
+    results->value = 0xFFFFFFFF;
     results->decode_type = 1;
     return 1;
   }
@@ -204,6 +206,7 @@ ISR(TIMER0_COMPA_vect) {
       }
       break;
   }
+  
 }
 
 #endif

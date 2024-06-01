@@ -30,11 +30,11 @@
 #include "../lib/timerISR.h"
 
 const unsigned short BUZZER_PERIOD = 220;
-const unsigned short DISPLAY_PERIOD = 20;
-const unsigned short GAME_PERIOD = 20;
+const unsigned short GAME_PERIOD = 200;
+const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
 const unsigned short LCD_PERIOD = 300;
 const unsigned short TIMER_PERIOD = 1;
-const unsigned short IR_PERIOD = 100;
+const unsigned short IR_PERIOD = 1;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
@@ -92,9 +92,23 @@ int tick_game(int state) {
       state = GAME_PLAYING;
       break;
     case GAME_PLAYING:
-      if (health_player <= 0) state = GAME_LOSE;
+      if (ir_value == PAUSE_IR) {
+        state = GAME_PAUSE;
+        ir_value = -1;
+      } else if (ir_value == POWER_IR) {
+        state = GAME_START;
+        ir_value = -1;
+      }
+      // if (health_player <= 0) state = GAME_LOSE;
       break;
     case GAME_PAUSE:
+      if (ir_value == PAUSE_IR) {
+        state = GAME_PLAYING;
+        ir_value = -1;
+      } else if (ir_value == POWER_IR) {
+        state = GAME_START;
+        ir_value = -1;
+      }
       break;
     case GAME_LOSE:
       break;
@@ -103,9 +117,11 @@ int tick_game(int state) {
     default:
       break;
   }
+
   switch (state) {
     case GAME_START:
       game_init();
+      TFT_FLUSH();
       break;
     case GAME_PLAYING:
       gameplay_message();
@@ -201,8 +217,9 @@ int tick_ir(int state) {
   }
   switch (state) {
     case IR_RECEIVE:
-      if (IRdecode(&ir_result)) {
-        serial_println(ir_result.value);
+      decode_results d;
+      if (IRdecode(&d)) {
+        if (d.value > 0) ir_value = d.value;
         IRresume();
       }
       break;
