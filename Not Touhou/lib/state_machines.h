@@ -29,11 +29,10 @@
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
 
-const unsigned short BUZZER_PERIOD = 220;
+const unsigned short BUZZER_PERIOD = 350;
 const unsigned short GAME_PERIOD = 200;
 const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
 const unsigned short LCD_PERIOD = 300;
-const unsigned short TIMER_PERIOD = 1;
 const unsigned short IR_PERIOD = 1;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
@@ -92,14 +91,16 @@ int tick_game(int state) {
       state = GAME_PLAYING;
       break;
     case GAME_PLAYING:
-      if (ir_value == PAUSE_IR) {
+      if (win) {
+        state = GAME_WIN;
+      } else if (ir_value == PAUSE_IR) {
         state = GAME_PAUSE;
         ir_value = -1;
       } else if (ir_value == POWER_IR) {
         state = GAME_START;
         ir_value = -1;
       }
-      // if (health_player <= 0) state = GAME_LOSE;
+      if (health_player <= 0) state = GAME_LOSE;
       break;
     case GAME_PAUSE:
       if (ir_value == PAUSE_IR) {
@@ -111,8 +112,16 @@ int tick_game(int state) {
       }
       break;
     case GAME_LOSE:
+      if (ir_value == POWER_IR) {
+        state = GAME_START;
+        ir_value = -1;
+      }
       break;
     case GAME_WIN:
+      if (ir_value == POWER_IR) {
+        state = GAME_START;
+        ir_value = -1;
+      }
       break;
     default:
       break;
@@ -120,20 +129,29 @@ int tick_game(int state) {
 
   switch (state) {
     case GAME_START:
-      game_init();
       TFT_FLUSH();
+      game_init();
+      elapsed_time_ms = 0;
+      elapsed_time_seconds = 0;
       break;
     case GAME_PLAYING:
+      if ( (elapsed_time_ms += GAME_PERIOD) >= 1000) {
+        elapsed_time_ms = 0;
+        elapsed_time_seconds ++;
+      }
       gameplay_message();
       game_loop();
       break;
     case GAME_PAUSE:
+      pause_message();
       break;
     case GAME_LOSE:
       TFT_DRAW_RECTANGLE(0, 0, 130, 130, 0xFFF);
       death_message();
+      TFT_DRAW_RECTANGLE(0, 0, 130, 130, 0xFFF);
       break;
     case GAME_WIN:
+      win_message();
       break;
     default:
       break;
@@ -170,33 +188,6 @@ int tick_lcd(int state) {
     case LCD_BOTTOM:
       lcd_goto_xy(1, 0);
       lcd_write_str(lcd_message_bottom);
-      break;
-    default:
-      break;
-  }
-  return state;
-}
-
-enum timer_state { TIMER_INIT, TIMER_TICK };
-int tick_timer(int state) {
-  switch (state) {
-    case TIMER_INIT:
-      elapsed_time_seconds = 0;
-      elapsed_time_ms = 0;
-      state = TIMER_TICK;
-      break;
-    case TIMER_TICK:
-      break;
-    default:
-      break;
-  }
-  switch (state) {
-    case TIMER_TICK:
-      if (health_player <= 0) break;
-      if (++elapsed_time_ms >= 1000) {
-        elapsed_time_ms = 0;
-        elapsed_time_seconds++;
-      }
       break;
     default:
       break;

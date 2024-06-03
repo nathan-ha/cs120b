@@ -26,7 +26,7 @@
 #include "../lib/state_machines.h"
 #include "../lib/timerISR.h"
 
-#define NUM_TASKS 6
+#define NUM_TASKS 5
 
 #define PIN_IR PD3
 
@@ -40,7 +40,7 @@ typedef struct _task {
 
 // TODO: Define Periods for each task
 //  e.g. const unsined long TASK1_PERIOD = <PERIOD>
-const unsigned int PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD, LCD_PERIOD, TIMER_PERIOD, IR_PERIOD};
+const unsigned int PERIODS[] = {BUZZER_PERIOD, DISPLAY_PERIOD, GAME_PERIOD, LCD_PERIOD, IR_PERIOD};
 const unsigned int GCD_PERIOD = findGCD_Array(PERIODS, NUM_TASKS);
 
 task tasks[NUM_TASKS];
@@ -99,15 +99,15 @@ int main(void) {
   tasks[3].elapsedTime = LCD_PERIOD;
   tasks[3].TickFct = &tick_lcd;
 
-  tasks[4].period = TIMER_PERIOD;
-  tasks[4].state = TIMER_INIT;
-  tasks[4].elapsedTime = TIMER_PERIOD;
-  tasks[4].TickFct = &tick_timer;
+  // tasks[4].period = TIMER_PERIOD;
+  // tasks[4].state = TIMER_INIT;
+  // tasks[4].elapsedTime = TIMER_PERIOD;
+  // tasks[4].TickFct = &tick_timer;
 
-  tasks[5].period = IR_PERIOD;
-  tasks[5].state = IR_INIT;
-  tasks[5].elapsedTime = IR_PERIOD;
-  tasks[5].TickFct = &tick_ir;
+  tasks[4].period = IR_PERIOD;
+  tasks[4].state = IR_INIT;
+  tasks[4].elapsedTime = IR_PERIOD;
+  tasks[4].TickFct = &tick_ir;
 
   TimerSet(GCD_PERIOD);
   TimerOn();

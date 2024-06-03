@@ -132,7 +132,7 @@ void TFT_FLUSH() {
 // draws rectangles faster than a nested for loop
 // input is the two corners of the rectangle
 // same logic as flush
-void TFT_DRAW_RECTANGLE(char x1, char y1, char x2, char y2, short color) {
+void TFT_DRAW_RECTANGLE(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2, short color) {
   TFT_SEND_COMMAND(0x2A);  // Set column address
   SPI_SEND(0x00);          // start column high byte
   SPI_SEND(x1);            // start column low byte
@@ -185,7 +185,7 @@ void TFT_INIT() {
 }
 
 // draws pixels at the x y coords
-void TFT_DRAW_PIXEL(char x, char y, short color) {
+void TFT_DRAW_PIXEL(unsigned char x, unsigned char y, short color) {
   TFT_SEND_COMMAND(0x2A);  // Set column address
   SPI_SEND(0x00);          // start column high byte
   SPI_SEND(x);             // start column low byte
@@ -202,6 +202,15 @@ void TFT_DRAW_PIXEL(char x, char y, short color) {
   TFT_SEND_COMMAND(0x2C);  // Memory write
   SPI_SEND(color >> 4);    // honestly don't know why i have to shift it like this
   SPI_SEND(color << 4);    // I just used trial and error, but it has something to do with 12 bit rgb
+}
+
+// slow but actually uses the right color
+void TFT_DRAW_RECTANGLE_SLOW(unsigned char x1, unsigned char y1, unsigned char x2, unsigned char y2, short color) {
+  for (short x = x1; x < x2; x++) {
+    for (short y = y1; y < y2; y++) {
+      TFT_DRAW_PIXEL(x, y, color);
+    }
+  }
 }
 
 // ****************************************************************************************************

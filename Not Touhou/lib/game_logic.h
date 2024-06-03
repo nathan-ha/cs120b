@@ -35,12 +35,14 @@
 
 // shared variables
 short health_player = 300;
-short health_boss = 1000;
+short health_boss = 500;
 char lcd_message_top[16] = "";
 char lcd_message_bottom[16] = "";
 unsigned char elapsed_time_seconds = 111;
 unsigned short elapsed_time_ms = 222;
 long ir_value = 0;
+char win = 0;
+char boss_phase = 1;
 
 struct vector {
   float x;
@@ -70,6 +72,10 @@ struct point player_prev;
 void game_init() {
   srand(time(NULL));
 
+  health_player = 300;
+  health_boss = 500;
+  boss_phase = 1;
+
   player.x = 64;
   player.y = 20;
   player.x_dir = 0;  // -1 for -x, 0 for no move, 1 for +x
@@ -81,6 +87,8 @@ void game_init() {
   boss.x_dir = 0;
   boss.y_dir = 0;
   boss.speed = 1;
+
+  win = 0;
 
   boss_prev.x = boss.x;
   boss_prev.y = boss.y;
@@ -157,6 +165,34 @@ void player_shoot_bullet(directions_4 dir) {
   }
 }
 
+void boss_phase_1_init() {
+  TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0xBAF);
+  TFT_FLUSH();
+  health_boss = 200;
+  boss.speed = 3;
+  boss.y = 100;
+  boss.x = 64;
+  for (short i = 0; i < boss_bullet_size; i++) {
+    boss_bullets[i].speed = rand_incl(3, 5);
+    boss_bullets[i].x = -1;
+    boss_bullets[i].y = -1;
+  }
+}
+
+void boss_phase_2_init() {
+  TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0xFAB);
+  TFT_FLUSH();
+  health_boss = 1000;
+  boss.speed = 0.5;
+  boss.y = 100;
+  boss.x = 64;
+  for (short i = 0; i < boss_bullet_size; i++) {
+    boss_bullets[i].speed = rand_incl(1, 3);
+    boss_bullets[i].x = -1;
+    boss_bullets[i].y = -1;
+  }
+}
+
 void game_loop() {
   const int stick_x = ADC_read(PIN_JOYSTICK_X);
   const int stick_y = ADC_read(PIN_JOYSTICK_Y);
@@ -207,31 +243,59 @@ void game_loop() {
     player_bullets[i].y += player_bullets[i].speed * player_bullets[i].y_dir;
     if (player_bullets[i].x > 125 || player_bullets[i].x < 0) player_bullets[i].x = -1;
     if (player_bullets[i].y > 125 || player_bullets[i].y < 0) player_bullets[i].x = -1;
-    // player gets hit
-    if (fabs(player_bullets[i].x - boss.x) < 5 && fabs(player_bullets[i].y - boss.y) < 5) health_boss -= 50;
+    // boss gets hit
+    if (fabs(player_bullets[i].x - boss.x) < 5 && fabs(player_bullets[i].y - boss.y) < 5) {
+      health_boss -= 20;
+      player_bullets[i].x = -1;
+    }
   }
 
   // player shoot bullet logic
   if (player_shoot) {
     player_shoot_bullet(UP);
   }
+  // boss death
+  if (health_boss <= 0) {
+    if (boss_phase == 1) {  // phase 1: fast boy
+      boss_phase_1_init();
+    } else if (boss_phase == 2) {  // tanky boy
+      boss_phase_2_init();
+    } else {
+      win = 1;
+    }
+    boss_phase++;
+  }
 
   // bomb/special
   if (press) {
-    TFT_DRAW_RECTANGLE(0, 0, 131, 131, 0xF00);
+    TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0xFAA);
     TFT_FLUSH();
+    for (short i = 0; i < boss_bullet_size; i++) {
+      boss_bullets[i].x = -1;
+      boss_bullets[i].y = -1;
+    }
   }
 }
 
 void draw_game_screen() {
   // player
   TFT_DRAW_RECTANGLE(player_prev.x - 2, player_prev.y - 2, player_prev.x + 2, player_prev.y + 2,
-                     0x000);                                                          // erase old pixels
-  TFT_DRAW_RECTANGLE(player.x - 2, player.y - 2, player.x + 2, player.y + 2, 0xFFF);  // draw new pixels
+                     0x000);  // erase old pixels
+  // TFT_DRAW_RECTANGLE(player.x - 2, player.y - 2, player.x + 2, player.y + 2, 0xFFF);  // draw new pixels
+  for (short x = player.x - 2; x < player.x + 2; x++) {
+    for (short y = player.y - 2; y < player.y + 2; y++) {
+      TFT_DRAW_PIXEL(x, y, 0x0AF);
+    }
+  }
 
   // boss
   TFT_DRAW_RECTANGLE(boss_prev.x - 4, boss_prev.y - 4, boss_prev.x + 4, boss_prev.y + 4, 0x000);
-  TFT_DRAW_RECTANGLE(boss.x - 4, boss.y - 4, boss.x + 4, boss.y + 4, 0x00F);
+  // TFT_DRAW_RECTANGLE(boss.x - 4, boss.y - 4, boss.x + 4, boss.y + 4, 0x00F);
+  for (short x = boss.x - 4; x < boss.x + 4; x++) {
+    for (short y = boss.y - 4; y < boss.y + 4; y++) {
+      TFT_DRAW_PIXEL(x, y, 0xF00);
+    }
+  }
 
   // boss bullets
   for (short i = 0; i < boss_bullet_size; i++) {
@@ -240,7 +304,6 @@ void draw_game_screen() {
       const float bullet_y_offset = boss_bullets[i].speed * boss_bullets[i].y_dir;
       TFT_DRAW_RECTANGLE(boss_bullets[i].x - bullet_x_offset - 1, boss_bullets[i].y - bullet_y_offset - 1,
                          boss_bullets[i].x - bullet_x_offset + 1, boss_bullets[i].y - bullet_y_offset + 1, 0x000);
-
       TFT_DRAW_RECTANGLE(boss_bullets[i].x - 1, boss_bullets[i].y - 1, boss_bullets[i].x + 1, boss_bullets[i].y + 1,
                          0xFF0);
     }
@@ -254,8 +317,13 @@ void draw_game_screen() {
       TFT_DRAW_RECTANGLE(player_bullets[i].x - bullet_x_offset - 1, player_bullets[i].y - bullet_y_offset - 1,
                          player_bullets[i].x - bullet_x_offset + 1, player_bullets[i].y - bullet_y_offset + 1, 0x000);
 
-      TFT_DRAW_RECTANGLE(player_bullets[i].x - 1, player_bullets[i].y - 1, player_bullets[i].x + 1,
-                         player_bullets[i].y + 1, 0xFF0);
+      // TFT_DRAW_RECTANGLE(player_bullets[i].x - 1, player_bullets[i].y - 1, player_bullets[i].x + 1,
+      //                    player_bullets[i].y + 1, 0xFF0);
+      for (short x = player_bullets[i].x - 1; x < player_bullets[i].x + 1; x++) {
+        for (short y = player_bullets[i].y - 1; y < player_bullets[i].y + 1; y++) {
+          TFT_DRAW_PIXEL(x, y, 0x0FF);
+        }
+      }
     }
   }
 
@@ -289,16 +357,54 @@ void gameplay_message() {
 
 // message displayed after dying
 void death_message() {
-  strcpy(lcd_message_top, "You Died...L");
+  char tmp[16] = "";
+  strncpy(lcd_message_top, "You Died...L", 16 - 1);
+  lcd_message_top[16 - 1] = '\0';
 
-  char tmp[3];
-  strcpy(lcd_message_bottom, "Time: ");
-  sprintf(tmp, "%d", elapsed_time_seconds);
-  strcat(lcd_message_bottom, tmp);
-  strcat(lcd_message_bottom, ".");
-  sprintf(tmp, "%d", elapsed_time_ms);
-  strcat(lcd_message_bottom, tmp);
-  strcat(lcd_message_bottom, " s");
+  strncpy(lcd_message_bottom, "Time: ", 16 - 1);
+  lcd_message_bottom[16 - 1] = '\0';
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_seconds);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, ".", 16 - strlen(lcd_message_bottom) - 1);
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_ms);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, " s", 16 - strlen(lcd_message_bottom) - 1);
+}
+
+void pause_message() {
+  char tmp[16] = "";
+  strncpy(lcd_message_top, "PAUSED", 16 - 1);
+  lcd_message_top[16 - 1] = '\0';
+
+  strncpy(lcd_message_bottom, "Time: ", 16 - 1);
+  lcd_message_bottom[16 - 1] = '\0';
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_seconds);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, ".", 16 - strlen(lcd_message_bottom) - 1);
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_ms);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, " s", 16 - strlen(lcd_message_bottom) - 1);
+}
+
+void win_message() {
+  char tmp[16] = "";
+  strncpy(lcd_message_top, "YOU'RE WINNER!!!!!", 16 - 1);
+  lcd_message_top[16 - 1] = '\0';
+
+  strncpy(lcd_message_bottom, "Time: ", 16 - 1);
+  lcd_message_bottom[16 - 1] = '\0';
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_seconds);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, ".", 16 - strlen(lcd_message_bottom) - 1);
+
+  snprintf(tmp, sizeof(tmp), "%d", elapsed_time_ms);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, " s", 16 - strlen(lcd_message_bottom) - 1);
 }
 
 // used for testing
