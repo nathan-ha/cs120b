@@ -43,6 +43,7 @@ unsigned short elapsed_time_ms = 222;
 long ir_value = 0;
 char win = 0;
 char boss_phase = 1;
+char bomb_count = 3;
 
 struct vector {
   float x;
@@ -75,6 +76,7 @@ void game_init() {
   health_player = 300;
   health_boss = 500;
   boss_phase = 1;
+  bomb_count = 3;
 
   player.x = 64;
   player.y = 20;
@@ -267,13 +269,14 @@ void game_loop() {
   }
 
   // bomb/special
-  if (press) {
-    TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0xFAA);
+  if (press && bomb_count > 0) {
+    TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0x0FF);
     TFT_FLUSH();
     for (short i = 0; i < boss_bullet_size; i++) {
       boss_bullets[i].x = -1;
       boss_bullets[i].y = -1;
     }
+    bomb_count--;
   }
 }
 
@@ -281,7 +284,6 @@ void draw_game_screen() {
   // player
   TFT_DRAW_RECTANGLE(player_prev.x - 2, player_prev.y - 2, player_prev.x + 2, player_prev.y + 2,
                      0x000);  // erase old pixels
-  // TFT_DRAW_RECTANGLE(player.x - 2, player.y - 2, player.x + 2, player.y + 2, 0xFFF);  // draw new pixels
   for (short x = player.x - 2; x < player.x + 2; x++) {
     for (short y = player.y - 2; y < player.y + 2; y++) {
       TFT_DRAW_PIXEL(x, y, 0x0AF);
@@ -290,7 +292,6 @@ void draw_game_screen() {
 
   // boss
   TFT_DRAW_RECTANGLE(boss_prev.x - 4, boss_prev.y - 4, boss_prev.x + 4, boss_prev.y + 4, 0x000);
-  // TFT_DRAW_RECTANGLE(boss.x - 4, boss.y - 4, boss.x + 4, boss.y + 4, 0x00F);
   for (short x = boss.x - 4; x < boss.x + 4; x++) {
     for (short y = boss.y - 4; y < boss.y + 4; y++) {
       TFT_DRAW_PIXEL(x, y, 0xF00);
@@ -317,8 +318,6 @@ void draw_game_screen() {
       TFT_DRAW_RECTANGLE(player_bullets[i].x - bullet_x_offset - 1, player_bullets[i].y - bullet_y_offset - 1,
                          player_bullets[i].x - bullet_x_offset + 1, player_bullets[i].y - bullet_y_offset + 1, 0x000);
 
-      // TFT_DRAW_RECTANGLE(player_bullets[i].x - 1, player_bullets[i].y - 1, player_bullets[i].x + 1,
-      //                    player_bullets[i].y + 1, 0xFF0);
       for (short x = player_bullets[i].x - 1; x < player_bullets[i].x + 1; x++) {
         for (short y = player_bullets[i].y - 1; y < player_bullets[i].y + 1; y++) {
           TFT_DRAW_PIXEL(x, y, 0x0FF);
@@ -326,7 +325,6 @@ void draw_game_screen() {
       }
     }
   }
-
   // save state to overwrite later
   player_prev.x = player.x;
   player_prev.y = player.y;

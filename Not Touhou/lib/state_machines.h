@@ -33,7 +33,7 @@ const unsigned short BUZZER_PERIOD = 350;
 const unsigned short GAME_PERIOD = 200;
 const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
 const unsigned short LCD_PERIOD = 300;
-const unsigned short IR_PERIOD = 1;
+const unsigned short IR_PERIOD = 100;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY };
 int tick_passive_buzzer(int state) {
