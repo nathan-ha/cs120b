@@ -29,13 +29,13 @@
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
 
-const unsigned short BUZZER_PERIOD = 350;
+const unsigned short BUZZER_PERIOD = 400;
 const unsigned short GAME_PERIOD = 200;
 const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
 const unsigned short LCD_PERIOD = 300;
 const unsigned short IR_PERIOD = 100;
 
-enum passive_buzzer_state { PBUZZER_INIT, PLAY };
+enum passive_buzzer_state { PBUZZER_INIT, PLAY, PLAY_DEATH, PLAY_WIN };
 int tick_passive_buzzer(int state) {
   static int i = 0;
 
@@ -44,6 +44,25 @@ int tick_passive_buzzer(int state) {
       state = PLAY;
       break;
     case PLAY:
+      if (health_player <= 0) {
+        state = PLAY_DEATH;
+        i = 0;
+      } else if (win) {
+        state = PLAY_WIN;
+        i = 0;
+      }
+      break;
+    case PLAY_DEATH:
+      if (health_player > 0) {
+        state = PLAY;
+        i = 0;
+      }
+      break;
+    case PLAY_WIN:
+      if (!win) {
+        state = PLAY;
+        i = 0;
+      }
       break;
     default:
       break;
@@ -51,9 +70,16 @@ int tick_passive_buzzer(int state) {
 
   switch (state) {
     case PLAY:
+      pbuzzer_change_freq(pgm_read_word(&bad_apple[i]));
+      i = (i + 1) %  bad_apple_length;
+      break;
+    case PLAY_DEATH:
+      pbuzzer_change_freq(pgm_read_word(&lavendar_town[i]));
+      i = (i + 1) % lavendar_town_length;
+      break;
+    case PLAY_WIN:
       pbuzzer_change_freq(pgm_read_word(&night_of_knights[i]));
       i = (i + 1) % night_of_knight_length;
-      break;
     default:
       break;
   }
@@ -135,9 +161,9 @@ int tick_game(int state) {
       elapsed_time_seconds = 0;
       break;
     case GAME_PLAYING:
-      if ( (elapsed_time_ms += GAME_PERIOD) >= 1000) {
+      if ((elapsed_time_ms += GAME_PERIOD) >= 1000) {
         elapsed_time_ms = 0;
-        elapsed_time_seconds ++;
+        elapsed_time_seconds++;
       }
       gameplay_message();
       game_loop();

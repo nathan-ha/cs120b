@@ -178,7 +178,7 @@ void TFT_INIT() {
   TFT_FLUSH();  // erase previous memory
 
   TFT_SEND_COMMAND(0x36);     // Memory Access Control
-  TFT_SEND_DATA(0b01001000);  // MY = 0, MX (mirror x) = 1, MV = 1, ML = 0, RGB (instead of bgr) = 1, MH = 0
+  TFT_SEND_DATA(0b01001000);  // MY = 0, MX (mirror x) = 1, MV = 0, ML = 0, RGB (instead of bgr) = 1, MH = 0
 
   // Set display on
   TFT_SEND_COMMAND(0x29);  // Display on

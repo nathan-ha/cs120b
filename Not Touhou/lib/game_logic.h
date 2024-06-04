@@ -84,8 +84,8 @@ void game_init() {
   player.y_dir = 0;
   player.speed = 5;
 
-  boss.x = 100;
-  boss.y = 64;
+  boss.x = 64;
+  boss.y = 100;
   boss.x_dir = 0;
   boss.y_dir = 0;
   boss.speed = 1;
