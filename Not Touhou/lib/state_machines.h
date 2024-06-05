@@ -32,12 +32,11 @@
 const unsigned short BUZZER_PERIOD = 400;
 const unsigned short GAME_PERIOD = 200;
 const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
-const unsigned short LCD_PERIOD = 300;
-const unsigned short IR_PERIOD = 100;
+const unsigned short LCD_PERIOD = 200;
+const unsigned short IR_PERIOD = 2;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY, PLAY_DEATH, PLAY_WIN };
 int tick_passive_buzzer(int state) {
-  static int i = 0;
 
   switch (state) {
     case PBUZZER_INIT:
@@ -46,22 +45,22 @@ int tick_passive_buzzer(int state) {
     case PLAY:
       if (health_player <= 0) {
         state = PLAY_DEATH;
-        i = 0;
+        song_tick = 0;
       } else if (win) {
         state = PLAY_WIN;
-        i = 0;
+        song_tick = 0;
       }
       break;
     case PLAY_DEATH:
       if (health_player > 0) {
         state = PLAY;
-        i = 0;
+        song_tick = 0;
       }
       break;
     case PLAY_WIN:
       if (!win) {
         state = PLAY;
-        i = 0;
+        song_tick = 0;
       }
       break;
     default:
@@ -70,16 +69,16 @@ int tick_passive_buzzer(int state) {
 
   switch (state) {
     case PLAY:
-      pbuzzer_change_freq(pgm_read_word(&bad_apple[i]));
-      i = (i + 1) %  bad_apple_length;
+      pbuzzer_change_freq(pgm_read_word(&bad_apple[song_tick]));
+      song_tick = (song_tick + 1) %  bad_apple_length;
       break;
     case PLAY_DEATH:
-      pbuzzer_change_freq(pgm_read_word(&lavendar_town[i]));
-      i = (i + 1) % lavendar_town_length;
+      pbuzzer_change_freq(pgm_read_word(&lavendar_town[song_tick]));
+      song_tick = (song_tick + 1) % lavendar_town_length;
       break;
     case PLAY_WIN:
-      pbuzzer_change_freq(pgm_read_word(&night_of_knights[i]));
-      i = (i + 1) % night_of_knight_length;
+      pbuzzer_change_freq(pgm_read_word(&night_of_knights[song_tick]));
+      song_tick = (song_tick + 1) % night_of_knight_length;
     default:
       break;
   }

@@ -44,6 +44,7 @@ long ir_value = 0;
 char win = 0;
 char boss_phase = 1;
 char bomb_count = 3;
+unsigned int song_tick = 0;
 
 struct vector {
   float x;
@@ -83,6 +84,7 @@ void game_init() {
   player.x_dir = 0;  // -1 for -x, 0 for no move, 1 for +x
   player.y_dir = 0;
   player.speed = 5;
+  song_tick = 0;
 
   boss.x = 64;
   boss.y = 100;
