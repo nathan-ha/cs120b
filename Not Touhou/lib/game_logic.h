@@ -63,6 +63,11 @@ struct vector player_bullets[10];
 const int boss_bullet_size = sizeof(boss_bullets) / sizeof(boss_bullets[0]);
 const int player_bullets_size = sizeof(player_bullets) / sizeof(player_bullets[0]);
 
+const float bullet_bullet_base_speed = 0.5;
+const float player_bullet_base_speed = 1;
+const float boss_base_speed = 0.2;
+const float player_base_speed = 0.4;
+
 struct point {
   float x;
   float y;
@@ -83,14 +88,14 @@ void game_init() {
   player.y = 20;
   player.x_dir = 0;  // -1 for -x, 0 for no move, 1 for +x
   player.y_dir = 0;
-  player.speed = 5;
+  player.speed = player_bullet_base_speed;
   song_tick = 0;
 
   boss.x = 64;
   boss.y = 100;
   boss.x_dir = 0;
   boss.y_dir = 0;
-  boss.speed = 1;
+  boss.speed = bullet_bullet_base_speed;
 
   win = 0;
 
@@ -104,7 +109,7 @@ void game_init() {
     boss_bullets[i].y = -1;
     boss_bullets[i].x_dir = 0;
     boss_bullets[i].y_dir = 0;
-    boss_bullets[i].speed = rand_incl(2, 4);
+    boss_bullets[i].speed = rand_incl(bullet_bullet_base_speed / 2, bullet_bullet_base_speed * 2);
   }
 
   for (short i = 0; i < player_bullets_size; i++) {
@@ -112,7 +117,7 @@ void game_init() {
     player_bullets[i].y = -1;
     player_bullets[i].x_dir = 0;
     player_bullets[i].y_dir = 0;
-    player_bullets[i].speed = 10;
+    player_bullets[i].speed = player_bullet_base_speed;
   }
 }
 void boss_shoot_bullet() {

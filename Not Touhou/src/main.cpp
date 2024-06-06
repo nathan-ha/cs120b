@@ -46,13 +46,14 @@ const unsigned int GCD_PERIOD = findGCD_Array(PERIODS, NUM_TASKS);
 task tasks[NUM_TASKS];
 
 void TimerISR() {
-  for (unsigned int i = 0; i < NUM_TASKS; i++) {          // Iterate through each task in the task array
-    if (tasks[i].elapsedTime >= tasks[i].period) {        // Check if the task is ready to tick
-      tasks[i].state = tasks[i].TickFct(tasks[i].state);  // Tick and set the next state for this task
-      tasks[i].elapsedTime = 0;                           // Reset the elapsed time for the next tick
-    }
-    tasks[i].elapsedTime += GCD_PERIOD;  // Increment the elapsed time by GCD_PERIOD
-  }
+  // for (unsigned int i = 0; i < NUM_TASKS; i++) {          // Iterate through each task in the task array
+  //   if (tasks[i].elapsedTime >= tasks[i].period) {        // Check if the task is ready to tick
+  //     tasks[i].state = tasks[i].TickFct(tasks[i].state);  // Tick and set the next state for this task
+  //     tasks[i].elapsedTime = 0;                           // Reset the elapsed time for the next tick
+  //   }
+  //   tasks[i].elapsedTime += GCD_PERIOD;  // Increment the elapsed time by GCD_PERIOD
+  // }
+  TimerFlag = 1;
 }
 
 int main(void) {
@@ -69,7 +70,7 @@ int main(void) {
   // port c inputs
   DDRC = 0x00;
   PORTC = 0xFF;
-  
+
   // other inits
   ADC_init();
   lcd_init();
@@ -113,6 +114,15 @@ int main(void) {
   TimerOn();
 
   while (1) {
+    for (unsigned int i = 0; i < NUM_TASKS; i++) {          // Iterate through each task in the task array
+      if (tasks[i].elapsedTime >= tasks[i].period) {        // Check if the task is ready to tick
+        tasks[i].state = tasks[i].TickFct(tasks[i].state);  // Tick and set the next state for this task
+        tasks[i].elapsedTime = 0;                           // Reset the elapsed time for the next tick
+      }
+      tasks[i].elapsedTime += GCD_PERIOD;  // Increment the elapsed time by GCD_PERIOD
+    }
+    while (!TimerFlag);
+    TimerFlag = 0;
   }
 
   return 0;

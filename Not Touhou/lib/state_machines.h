@@ -30,10 +30,10 @@
 #include "../lib/timerISR.h"
 
 const unsigned short BUZZER_PERIOD = 400;
-const unsigned short GAME_PERIOD = 200;
+const unsigned short GAME_PERIOD = 20;
 const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
 const unsigned short LCD_PERIOD = 200;
-const unsigned short IR_PERIOD = 2;
+const unsigned short IR_PERIOD = 100;
 
 enum passive_buzzer_state { PBUZZER_INIT, PLAY, PLAY_DEATH, PLAY_WIN };
 int tick_passive_buzzer(int state) {
