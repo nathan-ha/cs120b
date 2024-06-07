@@ -58,15 +58,15 @@ struct vector player;
 struct vector boss;
 
 struct vector boss_bullets[30];
-struct vector player_bullets[10];
+struct vector player_bullets[30];
 
 const int boss_bullet_size = sizeof(boss_bullets) / sizeof(boss_bullets[0]);
 const int player_bullets_size = sizeof(player_bullets) / sizeof(player_bullets[0]);
 
-const float bullet_bullet_base_speed = 0.5;
-const float player_bullet_base_speed = 1;
-const float boss_base_speed = 0.2;
-const float player_base_speed = 0.4;
+const float boss_bullet_base_speed = 2;
+const float player_bullet_base_speed = 3;
+const float boss_base_speed = 0.7;
+const float player_base_speed = 1;
 
 struct point {
   float x;
@@ -80,7 +80,7 @@ void game_init() {
   srand(time(NULL));
 
   health_player = 300;
-  health_boss = 500;
+  health_boss = 700;
   boss_phase = 1;
   bomb_count = 3;
 
@@ -95,7 +95,7 @@ void game_init() {
   boss.y = 100;
   boss.x_dir = 0;
   boss.y_dir = 0;
-  boss.speed = bullet_bullet_base_speed;
+  boss.speed = boss_base_speed;
 
   win = 0;
 
@@ -109,7 +109,7 @@ void game_init() {
     boss_bullets[i].y = -1;
     boss_bullets[i].x_dir = 0;
     boss_bullets[i].y_dir = 0;
-    boss_bullets[i].speed = rand_incl(bullet_bullet_base_speed / 2, bullet_bullet_base_speed * 2);
+    boss_bullets[i].speed = rand_incl(boss_bullet_base_speed / 2, boss_bullet_base_speed * 2);
   }
 
   for (short i = 0; i < player_bullets_size; i++) {
@@ -177,12 +177,12 @@ void player_shoot_bullet(directions_4 dir) {
 void boss_phase_1_init() {
   TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0xBAF);
   TFT_FLUSH();
-  health_boss = 200;
-  boss.speed = 3;
+  health_boss = 400;
+  boss.speed = boss_base_speed * 2;
   boss.y = 100;
   boss.x = 64;
   for (short i = 0; i < boss_bullet_size; i++) {
-    boss_bullets[i].speed = rand_incl(3, 5);
+    boss_bullets[i].speed = rand_incl(boss_bullet_base_speed / 1.5, boss_bullet_base_speed * 2.5);
     boss_bullets[i].x = -1;
     boss_bullets[i].y = -1;
   }
@@ -191,12 +191,12 @@ void boss_phase_1_init() {
 void boss_phase_2_init() {
   TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0xFAB);
   TFT_FLUSH();
-  health_boss = 1000;
-  boss.speed = 0.5;
+  health_boss = 1500;
+  boss.speed = boss_base_speed / 2;
   boss.y = 100;
   boss.x = 64;
   for (short i = 0; i < boss_bullet_size; i++) {
-    boss_bullets[i].speed = rand_incl(1, 3);
+    boss_bullets[i].speed = rand_incl(boss_bullet_base_speed / 3, boss_bullet_base_speed);
     boss_bullets[i].x = -1;
     boss_bullets[i].y = -1;
   }

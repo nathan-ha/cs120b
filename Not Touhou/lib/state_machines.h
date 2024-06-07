@@ -29,8 +29,8 @@
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
 
-const unsigned short BUZZER_PERIOD = 400;
-const unsigned short GAME_PERIOD = 20;
+const unsigned short BUZZER_PERIOD = 150;
+const unsigned short GAME_PERIOD = 50;
 const unsigned short DISPLAY_PERIOD = GAME_PERIOD;
 const unsigned short LCD_PERIOD = 200;
 const unsigned short IR_PERIOD = 100;
