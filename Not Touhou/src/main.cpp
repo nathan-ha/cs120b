@@ -100,11 +100,6 @@ int main(void) {
   tasks[3].elapsedTime = LCD_PERIOD;
   tasks[3].TickFct = &tick_lcd;
 
-  // tasks[4].period = TIMER_PERIOD;
-  // tasks[4].state = TIMER_INIT;
-  // tasks[4].elapsedTime = TIMER_PERIOD;
-  // tasks[4].TickFct = &tick_timer;
-
   tasks[4].period = IR_PERIOD;
   tasks[4].state = IR_INIT;
   tasks[4].elapsedTime = IR_PERIOD;

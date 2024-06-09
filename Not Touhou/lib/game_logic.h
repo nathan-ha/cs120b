@@ -53,8 +53,11 @@ struct vector {
   char y_dir;
   float speed;
 };
+enum directions_4 { UP, DOWN, LEFT, RIGHT };
+
 
 struct vector player;
+directions_4 player_shoot = UP;
 struct vector boss;
 
 struct vector boss_bullets[30];
@@ -83,6 +86,7 @@ void game_init() {
   health_boss = 700;
   boss_phase = 1;
   bomb_count = 3;
+  player_shoot = UP;
 
   player.x = 64;
   player.y = 20;
@@ -158,7 +162,6 @@ void boss_shoot_bullet() {
   }
 }
 
-enum directions_4 { UP, DOWN, LEFT, RIGHT };
 void player_shoot_bullet(directions_4 dir) {
   for (short i = 0; i < player_bullets_size; i++) {
     if (player_bullets[i].x >= 0) continue;
@@ -202,6 +205,22 @@ void boss_phase_2_init() {
   }
 }
 
+void update_shoot_direction() {
+  if (ir_value == VOL_UP_IR) {
+        player_shoot = UP;
+        ir_value = -1;
+  } else if (ir_value == VOL_DOWN_IR) {
+        player_shoot = DOWN;
+        ir_value = -1;
+  } else if (ir_value == LEFT_IR) {
+        player_shoot = LEFT;
+        ir_value = -1;
+  } else if (ir_value == RIGHT_IR) {
+        player_shoot = RIGHT;
+        ir_value = -1;
+  }
+}
+
 void game_loop() {
   const int stick_x = ADC_read(PIN_JOYSTICK_X);
   const int stick_y = ADC_read(PIN_JOYSTICK_Y);
@@ -213,7 +232,6 @@ void game_loop() {
   const char left = stick_y < 200;
   const char neutral = !up && !down && !press && !left && !right;
 
-  const char player_shoot = 1;
 
   // player move logic
   if (up && player.y < 125) player.y += player.speed;
@@ -232,6 +250,8 @@ void game_loop() {
   } else if (boss.y > player.y && boss.y > 10) {
     boss.y -= boss.speed;
   }
+
+  update_shoot_direction();
 
   // move boss bullet logic
   boss_shoot_bullet();
@@ -260,9 +280,8 @@ void game_loop() {
   }
 
   // player shoot bullet logic
-  if (player_shoot) {
-    player_shoot_bullet(UP);
-  }
+  player_shoot_bullet(player_shoot);
+
   // boss death
   if (health_boss <= 0) {
     if (boss_phase == 1) {  // phase 1: fast boy
