@@ -106,7 +106,7 @@ int tick_display(int state) {
   return state;
 }
 
-enum game_state { GAME_INIT, GAME_START, GAME_PLAYING, GAME_PAUSE, GAME_LOSE, GAME_WIN };
+enum game_state { GAME_INIT, GAME_START, GAME_PLAYING, GAME_PAUSE, GAME_LOSE, GAME_WIN, GAME_HIGHSCORE };
 int tick_game(int state) {
   switch (state) {
     case GAME_INIT:
@@ -134,6 +134,9 @@ int tick_game(int state) {
       } else if (ir_value == POWER_IR) {
         state = GAME_START;
         ir_value = -1;
+      } else if (ir_value == RIGHT_IR) {
+        state = GAME_HIGHSCORE;
+        ir_value = -1;
       }
       break;
     case GAME_LOSE:
@@ -144,6 +147,15 @@ int tick_game(int state) {
       break;
     case GAME_WIN:
       if (ir_value == POWER_IR) {
+        state = GAME_START;
+        ir_value = -1;
+      }
+      break;
+    case GAME_HIGHSCORE:
+      if (ir_value == RIGHT_IR) {
+        state = GAME_PAUSE;
+        ir_value = -1;
+      } else if (ir_value == POWER_IR) {
         state = GAME_START;
         ir_value = -1;
       }
@@ -177,6 +189,9 @@ int tick_game(int state) {
       break;
     case GAME_WIN:
       win_message();
+      break;
+    case GAME_HIGHSCORE:
+      high_score_message();
       break;
     default:
       break;
