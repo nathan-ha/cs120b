@@ -153,7 +153,7 @@ int tick_game(int state) {
       }
       break;
     case GAME_HIGHSCORE:
-      if (ir_value == RIGHT_IR) {
+      if (ir_value == LEFT_IR) {
         state = GAME_PAUSE;
         ir_value = -1;
       } else if (ir_value == POWER_IR) {
