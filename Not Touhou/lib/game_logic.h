@@ -66,7 +66,7 @@ struct vector player_bullets[30];
 const int boss_bullet_size = sizeof(boss_bullets) / sizeof(boss_bullets[0]);
 const int player_bullets_size = sizeof(player_bullets) / sizeof(player_bullets[0]);
 
-const float boss_bullet_base_speed = 2;
+const float boss_bullet_base_speed = 1.5;
 const float player_bullet_base_speed = 3;
 const float boss_base_speed = 0.7;
 const float player_base_speed = 1;
