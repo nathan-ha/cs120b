@@ -167,11 +167,26 @@ void player_shoot_bullet(directions_4 dir) {
     if (player_bullets[i].x >= 0) continue;
     player_bullets[i].x = player.x;
     player_bullets[i].y = player.y;
-    // bullet direction
-    // TODO: add multiple directions
-    if (dir == UP) {
-      player_bullets[i].x_dir = 0;
-      player_bullets[i].y_dir = 1;
+    switch (dir) {
+      case UP:
+        player_bullets[i].x_dir = 0;
+        player_bullets[i].y_dir = 1;
+        break;
+      case DOWN:
+        player_bullets[i].x_dir = 0;
+        player_bullets[i].y_dir = -1;
+        break;
+      case LEFT:
+        player_bullets[i].x_dir = -1;
+        player_bullets[i].y_dir = 0;
+        break;
+      case RIGHT:
+        player_bullets[i].x_dir = 1;
+        player_bullets[i].y_dir = 0;
+        break;
+      default:
+        player_bullets[i].x = -1;
+        break;
     }
     return;
   }
