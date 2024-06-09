@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <avr/eeprom.h>
 
 #include "../lib/LCD.h"
 #include "../lib/game_logic.h"
@@ -190,6 +191,7 @@ int tick_game(int state) {
       break;
     case GAME_WIN:
       win_message();
+      update_best_time();
       break;
     case GAME_HIGHSCORE:
       high_score_message();

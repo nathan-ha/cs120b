@@ -317,6 +317,14 @@ void check_game_phase() {
   }
 }
 
+void update_best_time() {
+  char current_best_score = eeprom_read_byte((uint8_t*)0x00);
+  // TODO
+  // compare current with new score
+  // overwrite if needed
+  // put score into string
+}
+
 // main game
 void game_loop() {
   player_action();
