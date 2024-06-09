@@ -236,10 +236,9 @@ void update_shoot_direction() {
   }
 }
 
-void game_loop() {
+void player_action() {
   const int stick_x = ADC_read(PIN_JOYSTICK_X);
   const int stick_y = ADC_read(PIN_JOYSTICK_Y);
-
   const char press = ADC_read(PIN_JOYSTICK_SW) < 500;
   const char up = stick_x > 900;
   const char down = stick_x < 200;
@@ -247,14 +246,24 @@ void game_loop() {
   const char left = stick_y < 200;
   const char neutral = !up && !down && !press && !left && !right;
 
-
-  // player move logic
   if (up && player.y < 125) player.y += player.speed;
   if (left && player.x > 3) player.x -= player.speed;
   if (right && player.x < 125) player.x += player.speed;
   if (down && player.y > 3) player.y -= player.speed;
 
-  // boss move logic
+  // bomb/special
+  if (press && bomb_count > 0) {
+    TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0x0FF);
+    TFT_FLUSH();
+    for (short i = 0; i < boss_bullet_size; i++) {
+      boss_bullets[i].x = -1;
+      boss_bullets[i].y = -1;
+    }
+    bomb_count--;
+  }
+}
+
+void move_boss() {
   if (boss.x < player.x && boss.x < 120) {
     boss.x += boss.speed;
   } else if (boss.y < player.y && boss.y < 120) {
@@ -265,11 +274,9 @@ void game_loop() {
   } else if (boss.y > player.y && boss.y > 10) {
     boss.y -= boss.speed;
   }
+}
 
-  update_shoot_direction();
-
-  // move boss bullet logic
-  boss_shoot_bullet();
+void move_boss_bullets() {
   for (short i = 0; i < boss_bullet_size; i++) {
     if (boss_bullets[i].x < 0) continue;  // skip invalid bullets
     boss_bullets[i].x += boss_bullets[i].speed * boss_bullets[i].x_dir;
@@ -279,8 +286,9 @@ void game_loop() {
     // player gets hit
     if (fabs(boss_bullets[i].x - player.x) < 5 && fabs(boss_bullets[i].y - player.y) < 5) health_player -= 300;
   }
+}
 
-  // move player bullet logic
+void player_action_bullets() {
   for (short i = 0; i < player_bullets_size; i++) {
     if (player_bullets[i].x < 0) continue;  // skip invalid bullets
     player_bullets[i].x += player_bullets[i].speed * player_bullets[i].x_dir;
@@ -293,10 +301,9 @@ void game_loop() {
       player_bullets[i].x = -1;
     }
   }
+}
 
-  // player shoot bullet logic
-  player_shoot_bullet(player_shoot);
-
+void check_game_phase() {
   // boss death
   if (health_boss <= 0) {
     if (boss_phase == 1) {  // phase 1: fast boy
@@ -308,17 +315,18 @@ void game_loop() {
     }
     boss_phase++;
   }
+}
 
-  // bomb/special
-  if (press && bomb_count > 0) {
-    TFT_DRAW_RECTANGLE_SLOW(0, 0, 131, 131, 0x0FF);
-    TFT_FLUSH();
-    for (short i = 0; i < boss_bullet_size; i++) {
-      boss_bullets[i].x = -1;
-      boss_bullets[i].y = -1;
-    }
-    bomb_count--;
-  }
+// main game
+void game_loop() {
+  player_action();
+  move_boss();
+  update_shoot_direction();
+  boss_shoot_bullet();
+  move_boss_bullets();
+  player_action_bullets();
+  player_shoot_bullet(player_shoot);
+  check_game_phase();
 }
 
 void draw_game_screen() {
