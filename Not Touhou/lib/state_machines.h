@@ -28,6 +28,7 @@
 #include "../lib/serialATmega.h"
 #include "../lib/spiAVR.h"
 #include "../lib/timerISR.h"
+#include "../lib/lcd_messages.h"
 
 const unsigned short BUZZER_PERIOD = 150;
 const unsigned short GAME_PERIOD = 50;
