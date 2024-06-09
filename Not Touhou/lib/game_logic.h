@@ -422,7 +422,7 @@ void death_message() {
 
 void pause_message() {
   char tmp[16] = "";
-  strncpy(lcd_message_top, "PAUSED    ->", 16 - 1);
+  strncpy(lcd_message_top, "PAUSED     HS->", 16 - 1);
   lcd_message_top[16 - 1] = '\0';
 
   strncpy(lcd_message_bottom, "Time: ", 16 - 1);
