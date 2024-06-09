@@ -113,7 +113,7 @@ int tick_game(int state) {
       state = GAME_START;
       break;
     case GAME_START:
-      state = GAME_PLAYING;
+      state = GAME_PAUSE;
       break;
     case GAME_PLAYING:
       if (win) {
