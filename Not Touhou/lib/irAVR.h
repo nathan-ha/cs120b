@@ -48,8 +48,7 @@ typedef struct {
 } irparams_t;
 
 // Results returned from the decoder
-class decode_results {
- public:
+struct decode_results {
   int decode_type;                // NEC
   unsigned long value;            // Decoded value
   int bits;                       // Number of bits in decoded value
