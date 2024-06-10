@@ -83,7 +83,7 @@ void high_score_message() {
   strncpy(lcd_message_top, "<- Menu", 16 - 1);
   lcd_message_top[16 - 1] = '\0';
 
-  strncpy(lcd_message_bottom, "Top Time:", 16 - 1);
+  strncpy(lcd_message_bottom, "#1: ", 16 - 1);
   lcd_message_bottom[16 - 1] = '\0';
 
   snprintf(tmp, sizeof(tmp), "%d", current_best_seconds);

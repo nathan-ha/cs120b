@@ -108,8 +108,6 @@ int main(void) {
   TimerSet(GCD_PERIOD);
   TimerOn();
 
-  eeprom_write_dword(0, 0xffff);
-
   while (1) {
     for (unsigned int i = 0; i < NUM_TASKS; i++) {          // Iterate through each task in the task array
       if (tasks[i].elapsedTime >= tasks[i].period) {        // Check if the task is ready to tick
