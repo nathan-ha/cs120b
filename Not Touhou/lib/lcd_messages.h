@@ -77,6 +77,8 @@ void win_message() {
 }
 
 void high_score_message() {
+  const short current_best_seconds = eeprom_read_word(0);
+  const short current_best_msec = eeprom_read_word((const uint16_t*)sizeof(short));
   char tmp[16] = "";
   strncpy(lcd_message_top, "<- Menu", 16 - 1);
   lcd_message_top[16 - 1] = '\0';
@@ -84,9 +86,13 @@ void high_score_message() {
   strncpy(lcd_message_bottom, "Best Time: ", 16 - 1);
   lcd_message_bottom[16 - 1] = '\0';
 
-  snprintf(tmp, sizeof(tmp), "%d", 9999);
+  snprintf(tmp, sizeof(tmp), "%d", current_best_seconds);
   strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
   strncat(lcd_message_bottom, ".", 16 - strlen(lcd_message_bottom) - 1);
+
+  snprintf(tmp, sizeof(tmp), "%d", current_best_msec);
+  strncat(lcd_message_bottom, tmp, 16 - strlen(lcd_message_bottom) - 1);
+  strncat(lcd_message_bottom, " s", 16 - strlen(lcd_message_bottom) - 1);
 }
 
 #endif

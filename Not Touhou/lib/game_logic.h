@@ -318,11 +318,12 @@ void check_game_phase() {
 }
 
 void update_best_time() {
-  char current_best_score = eeprom_read_byte((uint8_t*)0x00);
-  // TODO
-  // compare current with new score
-  // overwrite if needed
-  // put score into string
+  const short current_best_seconds = eeprom_read_word(0);
+  const short current_best_msec = eeprom_read_word((const uint16_t*)sizeof(short));
+  if (elapsed_time_seconds > current_best_seconds) return;
+  if (elapsed_time_seconds == current_best_seconds && elapsed_time_ms > current_best_msec) return;
+  eeprom_write_word(0, elapsed_time_seconds);
+  eeprom_write_word((uint16_t*)sizeof(short), current_best_msec);
 }
 
 // main game
