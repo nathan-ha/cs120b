@@ -190,8 +190,8 @@ int tick_game(int state) {
       TFT_DRAW_RECTANGLE(0, 0, 130, 130, 0xFFF);
       break;
     case GAME_WIN:
-      win_message();
       update_best_time();
+      win_message();
       break;
     case GAME_HIGHSCORE:
       high_score_message();

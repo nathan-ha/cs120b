@@ -323,7 +323,7 @@ void update_best_time() {
   if (elapsed_time_seconds > current_best_seconds) return;
   if (elapsed_time_seconds == current_best_seconds && elapsed_time_ms > current_best_msec) return;
   eeprom_write_word(0, elapsed_time_seconds);
-  eeprom_write_word((uint16_t*)sizeof(short), current_best_msec);
+  eeprom_write_word(2, elapsed_time_ms);
 }
 
 // main game

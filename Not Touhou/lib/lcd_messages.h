@@ -78,7 +78,7 @@ void win_message() {
 
 void high_score_message() {
   const short current_best_seconds = eeprom_read_word(0);
-  const short current_best_msec = eeprom_read_word((const uint16_t*)sizeof(short));
+  const short current_best_msec = eeprom_read_word(2);
   char tmp[16] = "";
   strncpy(lcd_message_top, "<- Menu", 16 - 1);
   lcd_message_top[16 - 1] = '\0';
